@@ -114,15 +114,15 @@ export class AuthService {
       await this.userRepository.save(user);
     }
 
-    const accessToken = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      clientCode: gatewayAuth.clientCode,
-      storeKey: gatewayAuth.storeKey,
-    }); 
+    // const accessToken = this.jwtService.sign({
+    //   sub: user.id,
+    //   email: user.email,
+    //   clientCode: gatewayAuth.clientCode,
+    //   storeKey: gatewayAuth.storeKey,
+    // }); 
 
     return {
-      access_token: accessToken,
+      access_token: gatewayAuth.access_token,
       token_type: gatewayAuth.token_type,
       codigoCliente: gatewayAuth.codigoCliente,
       chaveLoja: gatewayAuth.chaveLoja,

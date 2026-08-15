@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { LeraBoxRegisterDto, LeraBoxAuthResponse, RawLeraBoxLoginResponse, LeraBoxPixPaymentDto, LeraBoxCardPaymentDto, LeraBoxWithdrawalDto, TransactionFilterParams } from './dto/lera-box.dto';
+import { LeraBoxRegisterDto, RawLeraBoxLoginResponse, LeraBoxPixPaymentDto, LeraBoxCardPaymentDto, LeraBoxWithdrawalDto, TransactionFilterParams } from './dto/lera-box.dto';
 
 @Injectable()
 export class LeraBoxService {

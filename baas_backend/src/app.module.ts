@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LeraBoxModule } from './modules/lera-box/lera-box.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { FeesModule } from './modules/fees/fees.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     LeraBoxModule,
     AuthModule,
+    FeesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
