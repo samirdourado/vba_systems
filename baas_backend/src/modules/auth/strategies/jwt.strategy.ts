@@ -1,5 +1,3 @@
-// src/modules/auth/strategies/jwt.strategy.ts
-
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -24,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // Busca o usuário local pelo ID interno da sua API BaaS (payload.sub)
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
       relations: { gatewayAccount: true },
@@ -34,6 +31,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Usuário não encontrado na base local.');
     }
 
-    return user; // Injeta o objeto user completo dentro do req.user
+    return user;
   }
 }

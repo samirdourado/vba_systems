@@ -1,6 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
-// import { Order } from './order.entity';
 
 export enum PaymentMethod {
   PIX = 'PIX',
@@ -9,66 +8,48 @@ export enum PaymentMethod {
 
 export enum CheckoutStatus {
   PENDING = 'PENDING',
-  PAID = 'PAID',
+  APPROVED = 'APPROVED',
+  DENIED = 'DENIED',
   EXPIRED = 'EXPIRED',
   CANCELLED = 'CANCELLED',
-  FAILED = 'FAILED',
 }
 
 @Entity('checkout_links')
 export class CheckoutLink {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
-  @Column()
-  userId!: string;
+  @Column({ name: 'external_reference', unique: false })
+  externalReference: string;
 
-  @ManyToOne(() => User, (user) => user.checkoutLinks)
-  @JoinColumn({ name: 'userId' })
-  user!: User;
-
-  @Column()
-  title!: string;
-
-  @Column('int')
-  amount!: number;
+  @Column({ type: 'int', comment: 'Valor em centavos' })
+  amountInCents: number;
 
   @Column({ type: 'enum', enum: PaymentMethod })
-  paymentMethod!: PaymentMethod;
+  paymentMethod: PaymentMethod;
 
-  @Column({ type: 'enum', enum: CheckoutStatus, default: CheckoutStatus.PENDING })
-  status!: CheckoutStatus;
+  @Column({ type: 'int', default: 1 })
+  installments: number;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, default: 0 })
-  feePercent!: number;
+  feePercent: number;
 
-  @Column({ default: 1 })
-  installments!: number;
-
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   brand?: string;
 
-  @Column({ unique: true })
-  externalReference!: string;
+  @Column({ type: 'enum', enum: CheckoutStatus, default: CheckoutStatus.PENDING })
+  status: CheckoutStatus;
 
-  @Column({ type: 'text', nullable: true })
-  qrCodeBase64?: string;
-
-  @Column({ type: 'text', nullable: true })
-  emv?: string;
-
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   gatewayPaymentId?: string;
 
-  @Column({ nullable: true })
-  expiresAt?: Date;
-
-  // @OneToMany(() => Order, (order) => order.checkoutLink)
-  // orders?: Order[];
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'merchant_id' })
+  merchant: User;
 
   @CreateDateColumn()
-  createdAt!: Date;
+  createdAt: Date;
 
   @UpdateDateColumn()
-  updatedAt!: Date;
+  updatedAt: Date;
 }

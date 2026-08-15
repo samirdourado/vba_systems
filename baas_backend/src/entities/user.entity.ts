@@ -26,7 +26,7 @@ export class User {
   @OneToOne(() => GatewayAccount, (account) => account.user, { cascade: true })
   gatewayAccount?: GatewayAccount;
 
-  @OneToMany(() => CheckoutLink, (link) => link.user)
+  @OneToMany(() => CheckoutLink, (link) => link.merchant)
   checkoutLinks?: CheckoutLink[];
 
   // @OneToMany(() => Withdrawal, (withdrawal) => withdrawal.user)

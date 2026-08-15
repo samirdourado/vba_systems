@@ -19,20 +19,21 @@ export class FeesService {
    * Valida se a taxa e o número de parcelas informados conferem com a tabela do gateway
    */
   async validateFeePercent(installment: number, feePercent: number, brand?: string): Promise<boolean> {
-    const fees: FeeOption[] = await this.leraBoxService.getFees(brand);
-
-    const feeConfig = fees.find((fee) => Number(fee.installment) === Number(installment));
+    const response = await this.leraBoxService.getFees(brand);
+    const feesList = response?.fees || response;
+    const feeConfig = feesList.find(
+      (fee: any) => Number(fee.installments) === Number(installment) && (!brand || fee.brand?.toUpperCase() === brand.toUpperCase())
+    );
 
     if (!feeConfig) {
-      throw new BadRequestException(`Número de parcelas (${installment}x) inválido ou não suportado.`);
+      throw new BadRequestException(
+        `Número de parcelas (${installment}x) inválido para a bandeira informada.`,
+      );
     }
 
     if (Number(feeConfig.feePercent) !== Number(feePercent)) {
-      this.logger.warn(
-        `Divergência de taxa detectada. Esperado: ${feeConfig.feePercent}%, Recebido: ${feePercent}%`,
-      );
       throw new BadRequestException(
-        `Taxa de cartão incorreta para ${installment}x. A taxa atual é ${feeConfig.feePercent}%.`,
+        `Taxa de cartão incorreta para ${installment}x. A taxa atual do gateway é ${feeConfig.feePercent}%.`,
       );
     }
 

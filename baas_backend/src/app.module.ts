@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LeraBoxModule } from './modules/lera-box/lera-box.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FeesModule } from './modules/fees/fees.module';
+import { CheckoutModule } from './modules/checkout/checkout.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { FeesModule } from './modules/fees/fees.module';
     LeraBoxModule,
     AuthModule,
     FeesModule,
+    CheckoutModule,
   ],
   controllers: [AppController],
   providers: [AppService],

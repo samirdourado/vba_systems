@@ -40,18 +40,22 @@ export interface LeraBoxRegisterDto {
 
 export interface LeraBoxPixPaymentDto {
   amount: number;
-  externalReference: string;
+  payerDocument: string;
+  description?: string;
+  externalReference?: string;
 }
 
 export interface LeraBoxCardPaymentDto {
   amount: number;
   installments: number;
   feePercent: number;
-  externalReference: string;
-  cardNumber?: string;
-  cardHolderName?: string;
-  cardExpirationDate?: string;
-  cardCvv?: string;
+  cardNumber: string;
+  cardHolder: string;
+  expiryMonth: string;
+  expiryYear: string;
+  cvv: string;
+  description?: string;
+  externalReference?: string;
 }
 
 export interface LeraBoxWithdrawalDto {
