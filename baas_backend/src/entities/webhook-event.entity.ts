@@ -1,22 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('webhook_events')
 export class WebhookEvent {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column({ name: 'event_id', unique: true })
   eventId!: string;
 
-  @Column()
+  @Column({ name: 'event_type' })
   eventType!: string;
 
-  @Column('json')
+  @Column({ type: 'json' })
   payload!: any;
 
   @Column({ default: false })
   processed!: boolean;
 
-  @CreateDateColumn()
+  @Column({ name: 'error_message', type: 'text', nullable: true })
+  errorMessage?: string;
+
+  @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt!: Date;
 }

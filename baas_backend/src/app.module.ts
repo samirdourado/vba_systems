@@ -7,6 +7,7 @@ import { LeraBoxModule } from './modules/lera-box/lera-box.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { FeesModule } from './modules/fees/fees.module';
 import { CheckoutModule } from './modules/checkout/checkout.module';
+import { WebhookModule } from './modules/webhook/webhook.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CheckoutModule } from './modules/checkout/checkout.module';
     AuthModule,
     FeesModule,
     CheckoutModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],

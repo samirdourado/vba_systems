@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { LeraBoxRegisterDto, RawLeraBoxLoginResponse, LeraBoxPixPaymentDto, LeraBoxCardPaymentDto, LeraBoxWithdrawalDto, TransactionFilterParams } from './dto/lera-box.dto';
+import { CreateLeraBoxWebhookDto } from '../webhook/dto/webhook.dto';
 
 @Injectable()
 export class LeraBoxService {
@@ -144,6 +145,68 @@ export class LeraBoxService {
         error?.response?.status || HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  private getHeaders(token: string) {
+    if (!token) {
+      throw new HttpException(
+        'Token do gateway LeraBox não localizado no perfil do usuário.',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return { Authorization: `Bearer ${token}` };
+  }
+  
+  async registerWebhook(token: string, dto: CreateLeraBoxWebhookDto) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post(`${this.baseUrl}/webhooks`, dto, {
+          headers: this.getHeaders(token),
+        }),
+      );
+      return response.data;
+    } catch (error: any) {
+      this.handleAxiosError(error);
+    }
+  }
+
+  async listWebhooks(token: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.baseUrl}/webhooks`, {
+          headers: this.getHeaders(token),
+        }),
+      );
+      return response.data;
+    } catch (error: any) {
+      this.handleAxiosError(error);
+    }
+  }
+
+  async deleteWebhook(token: string, webhookId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.delete(`${this.baseUrl}/webhooks/${webhookId}`, {
+          headers: this.getHeaders(token),
+        }),
+      );
+      return response.data;
+    } catch (error: any) {
+      this.handleAxiosError(error);
+    }
+  }
+
+  private handleAxiosError(error: any) {
+    if (error.response) {
+      throw new HttpException(
+        error.response.data || 'Erro na comunicação com a LeraBox',
+        error.response.status || HttpStatus.BAD_REQUEST,
+      );
+    }
+    throw new HttpException(
+      'Falha de conexão com a API da LeraBox',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
 
   async getWalletBalance(token: string) {
