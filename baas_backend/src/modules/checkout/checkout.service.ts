@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Logger, ConflictException, InternalServerErrorException, } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, ConflictException, InternalServerErrorException, NotFoundException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, CheckoutLink, PaymentMethod, CheckoutStatus } from '@/entities';
@@ -158,9 +158,27 @@ export class CheckoutService {
   /**
    * Consulta os dados de um checkout por ID ou externalReference
    */
-  async getCheckoutByRef(externalReference: string) {
-    return this.checkoutRepository.findOne({
-      where: { externalReference },
+  async getCheckoutById(id: string) {
+    const checkout = await this.checkoutRepository.findOne({
+      where: { id },
     });
-  }
+
+    if (!checkout) {
+      throw new NotFoundException(`Checkout com ID '${id}' não encontrado.`);
+    }
+
+    return {
+      id: checkout.id,
+      externalReference: checkout.externalReference,
+      amountInCents: checkout.amountInCents,
+      paymentMethod: checkout.paymentMethod,
+      installments: checkout.installments,
+      feePercent: checkout.feePercent,
+      brand: checkout.brand,
+      status: checkout.status,
+      gatewayPaymentId: checkout.gatewayPaymentId,
+      createdAt: checkout.createdAt,
+      updatedAt: checkout.updatedAt,
+    };
+}
 }

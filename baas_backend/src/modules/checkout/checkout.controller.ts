@@ -25,9 +25,9 @@ export class CheckoutController {
     return this.checkoutService.processCardPayment(req.user, dto);
   }
 
-  @Get(':externalReference')
-  @ApiOperation({ summary: 'Consulta o status de um checkout por referência externa' })
-  async getCheckout(@Param('externalReference') externalReference: string) {
-    return this.checkoutService.getCheckoutByRef(externalReference);
+  @Get(':id')
+  @ApiOperation({ summary: 'Busca o status e dados do checkout pelo ID' })
+  async getCheckoutById(@Param('id') id: string) {
+    return this.checkoutService.getCheckoutById(id);
   }
 }
