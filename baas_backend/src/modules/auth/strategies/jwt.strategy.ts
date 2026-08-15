@@ -1,27 +1,39 @@
+// src/modules/auth/strategies/jwt.strategy.ts
+
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '@/entities';
 
-export interface JwtPayload {
-  sub: string;
-  email: string;
-}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(configService: ConfigService) {
+  constructor(
+    private configService: ConfigService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'baas_secret_key'),
+      secretOrKey: configService.get<string>('JWT_SECRET', 'sua_chave_secreta'),
     });
   }
 
-  async validate(payload: JwtPayload) {
-    if (!payload.sub) {
-      throw new UnauthorizedException('Invalid token payload');
+  async validate(payload: any) {
+    // Busca o usuário local pelo ID interno da sua API BaaS (payload.sub)
+    const user = await this.userRepository.findOne({
+      where: { id: payload.sub },
+      relations: { gatewayAccount: true },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Usuário não encontrado na base local.');
     }
-    return { userId: payload.sub, email: payload.email };
+
+    return user; // Injeta o objeto user completo dentro do req.user
   }
 }

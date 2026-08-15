@@ -90,6 +90,21 @@ export class LeraBoxService {
     }
   }
 
+  async getUserProfile(token: string) {
+    try {
+      const response = await firstValueFrom(
+        this.httpService.get(`${this.baseUrl}/users/me`, this.getAuthHeaders(token)),
+      );
+      return response.data;
+    } catch (error: any) {
+      this.logger.error('Erro ao buscar perfil no Lera Box:', error?.response?.data || error.message);
+      throw new HttpException(
+        error?.response?.data?.message || 'Falha ao buscar perfil no gateway',
+        error?.response?.status || HttpStatus.UNAUTHORIZED,
+      );
+    }
+  }
+
   async getFees(brand?: string) {
     try {
       const url = brand ? `${this.baseUrl}/fees?brand=${brand}` : `${this.baseUrl}/fees`;

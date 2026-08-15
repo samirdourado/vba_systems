@@ -73,91 +73,68 @@ export class AuthService {
     };
   }
 
- async login(dto: LoginMerchantDto) {
+  async login(dto: LoginMerchantDto) {
     const cleanDocument = dto.document.replace(/\D/g, '');
-   
+
     let gatewayAuth;
     try {
       gatewayAuth = await this.leraBoxService.login(cleanDocument, dto.password);
     } catch (error) {
-      this.logger.error(`Falha na autenticação da Lera Box para o documento: ${cleanDocument}`);
-      throw new UnauthorizedException('Credenciais inválidas.');
+      throw new UnauthorizedException('Credenciais inválidas no gateway Lera Box.');
     }
-    
+
     const user = await this.userRepository.findOne({
       where: { document: cleanDocument },
       relations: { gatewayAccount: true },
     });
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado.');
+      throw new NotFoundException('Usuário não encontrado na base local BaaS.');
     }
-    
+
+    const gatewayToken = gatewayAuth.access_token || gatewayAuth.token;
+    const codigoCliente = gatewayAuth.codigoCliente || gatewayAuth.clientCode;
+    const chaveLoja = gatewayAuth.chaveLoja || gatewayAuth.storeKey;
+
     if (user.gatewayAccount) {
-      user.gatewayAccount.token = gatewayAuth.token;
-      user.gatewayAccount.clientCode = gatewayAuth.clientCode;
-      user.gatewayAccount.storeKey = gatewayAuth.storeKey;
+      user.gatewayAccount.token = gatewayToken;
+      user.gatewayAccount.clientCode = codigoCliente;
+      user.gatewayAccount.storeKey = chaveLoja;
       await this.gatewayAccountRepository.save(user.gatewayAccount);
     } else {
-      const newGatewayAccount = this.gatewayAccountRepository.create({
-        token: gatewayAuth.token,
-        clientCode: gatewayAuth.clientCode,
-        storeKey: gatewayAuth.storeKey,
+      const newAccount = this.gatewayAccountRepository.create({
+        token: gatewayToken,
+        clientCode: codigoCliente,
+        storeKey: chaveLoja,
         user,
       });
-      await this.gatewayAccountRepository.save(newGatewayAccount);
+      await this.gatewayAccountRepository.save(newAccount);
     }
     
-    const isPasswordInSync = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordInSync) {
-      user.password = await bcrypt.hash(dto.password, 10);
-      await this.userRepository.save(user);
-    }
-
-    // const accessToken = this.jwtService.sign({
-    //   sub: user.id,
-    //   email: user.email,
-    //   clientCode: gatewayAuth.clientCode,
-    //   storeKey: gatewayAuth.storeKey,
-    // }); 
-
-    return {
-      access_token: gatewayAuth.access_token,
-      token_type: gatewayAuth.token_type,
-      codigoCliente: gatewayAuth.codigoCliente,
-      chaveLoja: gatewayAuth.chaveLoja,
-      user: {
-        id: gatewayAuth.user.id,
-        personType: gatewayAuth.user.personType,
-        name: gatewayAuth.user.name,
-        tradingName: gatewayAuth.user.tradingName,
-        email: gatewayAuth.user.email,
-        document: gatewayAuth.user.document,
-      },
-  }
-}
-  
-  async getProfile(userId: string) {
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      relations: { gatewayAccount: true },
-    });
-
-    if (!user) {
-      throw new NotFoundException('Merchant not found');
-    }
-
-    return {
-      id: user.id,
-      name: user.name,
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
       email: user.email,
       document: user.document,
-      gatewayAccount: user.gatewayAccount
-        ? {
-            clientCode: user.gatewayAccount.clientCode,
-            storeKey: user.gatewayAccount.storeKey,
-          }
-        : null,
+    });
+
+    return {
+      access_token: accessToken,
+      token_type: 'Bearer',
+      codigoCliente,
+      chaveLoja,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        document: user.document,
+      },
     };
   }
+
+  async getProfile(user: User) {
+    if (!user.gatewayAccount?.token) {
+      throw new UnauthorizedException('Conta do gateway não vinculada ou token ausente.');
+     }  
+    return this.leraBoxService.getUserProfile(user.gatewayAccount.token);
+  } 
 }
