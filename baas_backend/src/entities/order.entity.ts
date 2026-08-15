@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { CheckoutLink } from './checkout-link.entity';
+// import { CheckoutLink } from './checkout-link.entity';
 
 @Entity('orders')
 export class Order {
@@ -9,9 +9,9 @@ export class Order {
   @Column()
   checkoutLinkId!: string;
 
-  @ManyToOne(() => CheckoutLink, (link) => link.orders)
-  @JoinColumn({ name: 'checkoutLinkId' })
-  checkoutLink!: CheckoutLink;
+  // @ManyToOne(() => CheckoutLink, (link) => link.orders)
+  // @JoinColumn({ name: 'checkoutLinkId' })
+  // checkoutLink!: CheckoutLink;
 
   @Column('int')
   amount!: number;

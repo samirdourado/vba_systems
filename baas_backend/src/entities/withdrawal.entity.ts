@@ -16,9 +16,9 @@ export class Withdrawal {
   @Column()
   userId!: string;
 
-  @ManyToOne(() => User, (user) => user.withdrawals)
-  @JoinColumn({ name: 'userId' })
-  user!: User;
+  // @ManyToOne(() => User, (user) => user.withdrawals)
+  // @JoinColumn({ name: 'userId' })
+  // user!: User;
 
   @Column('int')
   amount!: number;

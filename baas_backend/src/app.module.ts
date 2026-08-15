@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LeraBoxModule } from './modules/lera-box/lera-box.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { LeraBoxModule } from './modules/lera-box/lera-box.module';
       }),
     }),
     LeraBoxModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

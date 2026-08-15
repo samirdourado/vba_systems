@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
-import { Order } from './order.entity';
+// import { Order } from './order.entity';
 
 export enum PaymentMethod {
   PIX = 'PIX',
@@ -63,8 +63,8 @@ export class CheckoutLink {
   @Column({ nullable: true })
   expiresAt?: Date;
 
-  @OneToMany(() => Order, (order) => order.checkoutLink)
-  orders?: Order[];
+  // @OneToMany(() => Order, (order) => order.checkoutLink)
+  // orders?: Order[];
 
   @CreateDateColumn()
   createdAt!: Date;

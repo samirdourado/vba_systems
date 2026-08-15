@@ -1,7 +1,18 @@
+export interface LeraBoxUser {
+  id: string;
+  personType: 'PF' | 'PJ' | string;
+  name: string;
+  tradingName: string;
+  email: string;
+  document: string;
+}
+
 export interface RawLeraBoxLoginResponse {
-  token: string;
-  CodigoCliente: string;
-  ChaveLoja: string;
+  access_token: string;
+  token_type: string;
+  codigoCliente: number;
+  chaveLoja: string;
+  user: LeraBoxUser;
 }
 
 export interface LeraBoxAuthResponse {
@@ -11,11 +22,20 @@ export interface LeraBoxAuthResponse {
 }
 
 export interface LeraBoxRegisterDto {
+  personType: 'PF' | 'PJ';
   name: string;
+  tradingName?: string;
   email: string;
-  document: string;
   phone: string;
+  document: string;
   password?: string;
+  zipCode: string;
+  address: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 }
 
 export interface LeraBoxPixPaymentDto {

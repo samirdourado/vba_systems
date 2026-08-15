@@ -2,15 +2,7 @@ import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import {
-  LeraBoxRegisterDto,
-  LeraBoxAuthResponse,
-  RawLeraBoxLoginResponse,
-  LeraBoxPixPaymentDto,
-  LeraBoxCardPaymentDto,
-  LeraBoxWithdrawalDto,
-  TransactionFilterParams,
-} from './dto/lera-box.dto';
+import { LeraBoxRegisterDto, LeraBoxAuthResponse, RawLeraBoxLoginResponse, LeraBoxPixPaymentDto, LeraBoxCardPaymentDto, LeraBoxWithdrawalDto, TransactionFilterParams } from './dto/lera-box.dto';
 
 @Injectable()
 export class LeraBoxService {
@@ -35,41 +27,64 @@ export class LeraBoxService {
     };
   }
 
-  async registerUser(data: LeraBoxRegisterDto) {
+  async registerUser(dto: LeraBoxRegisterDto): Promise<any> {
+    const cleanDocument = dto.document.replace(/\D/g, '');
+    const cleanPhone = dto.phone.replace(/\D/g, '');
+
+    const payload: LeraBoxRegisterDto = {
+      ...dto,
+      document: cleanDocument,
+      phone: cleanPhone,
+    };
+
     try {
-      const response = await firstValueFrom(
-        this.httpService.post(`${this.baseUrl}/users`, data),
+      this.logger.log(`Registrando usuário na Lera Box: ${cleanDocument}`);
+
+      const { data } = await firstValueFrom(
+        this.httpService.post(`${this.baseUrl}/users`, payload, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }),
       );
-      return response.data;
+
+      return data;
     } catch (error: any) {
-      this.logger.error('Error registering user in Lera Box:', error?.response?.data || error.message);
+      const errorData = error?.response?.data;
+      const status = error?.response?.status || HttpStatus.BAD_REQUEST;
+
+      this.logger.error(
+        `Erro ao registrar usuário na Lera Box: ${JSON.stringify(errorData || error.message)}`,
+      );
+
       throw new HttpException(
-        error?.response?.data?.message || 'Failed to register on Gateway',
-        error?.response?.status || HttpStatus.BAD_REQUEST,
+        errorData?.message || 'Falha ao realizar cadastro na Lera Box',
+        status,
       );
     }
   }
 
-  async login(email: string, password: string): Promise<LeraBoxAuthResponse> {
+  async login(document: string, password: string): Promise<RawLeraBoxLoginResponse> {
+    const cleanDocument = document.replace(/\D/g, '');
+
     try {
-      const response = await firstValueFrom(
-        this.httpService.post<RawLeraBoxLoginResponse>(`${this.baseUrl}/auth/login`, {
-          email,
-          password,
-        }),
+      const { data } = await firstValueFrom(
+        this.httpService.post<RawLeraBoxLoginResponse>(
+          `${this.baseUrl}/auth/login`,
+          {
+            document: cleanDocument,
+            password,
+          },
+        ),
       );
 
-      const rawData = response.data;
-      
-      return {
-        token: rawData.token,
-        clientCode: rawData.CodigoCliente,
-        storeKey: rawData.ChaveLoja,
-      };
+      return data;
     } catch (error: any) {
-      this.logger.error('Error logging in Lera Box:', error?.response?.data || error.message);
+      const errorData = error?.response?.data;
+      this.logger.error(`Erro ao logar na Lera Box: ${JSON.stringify(errorData || error.message)}`);
+      
       throw new HttpException(
-        error?.response?.data?.message || 'Gateway authentication failed',
+        errorData?.message || 'Falha na autenticação da Lera Box',
         error?.response?.status || HttpStatus.UNAUTHORIZED,
       );
     }

@@ -20,14 +20,17 @@ export class User {
   @Column({ nullable: true })
   document?: string;
 
+  @Column({ nullable: true })
+  phone?: string;
+
   @OneToOne(() => GatewayAccount, (account) => account.user, { cascade: true })
   gatewayAccount?: GatewayAccount;
 
   @OneToMany(() => CheckoutLink, (link) => link.user)
   checkoutLinks?: CheckoutLink[];
 
-  @OneToMany(() => Withdrawal, (withdrawal) => withdrawal.user)
-  withdrawals?: Withdrawal[];
+  // @OneToMany(() => Withdrawal, (withdrawal) => withdrawal.user)
+  // withdrawals?: Withdrawal[];
 
   @CreateDateColumn()
   createdAt!: Date;
@@ -35,3 +38,4 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 }
+
