@@ -1,7 +1,9 @@
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { createCheckoutLink, getFees, payCard, payPix } from '../../services/checkoutService'
-import { formatCentsToBRL } from '../../utils/formatters'
+import { createCheckoutLink, getFees } from '../../services/checkoutService'
+import { PixPayment } from '../checkout/PixPayment'
+import { CardPayment } from '../checkout/CardPayment'
+import { CheckoutResultCard } from '../checkout/CheckoutResultCard'
 
 type FeeOption = {
   installments?: number
@@ -21,18 +23,11 @@ export function CheckoutPanel() {
   const [description, setDescription] = useState('Pagamento de teste')
   const [fees, setFees] = useState<any[]>([])
   const [link, setLink] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [paymentLoading, setPaymentLoading] = useState(false)
-  const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [cardData, setCardData] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryMonth: '',
-    expiryYear: '',
-    cvv: '',
-    installments: '1',
-  })
+  const [mesage, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState<'PIX' | 'CARD'>('PIX')
+  const [paymentSuccessData, setPaymentSuccessData] = useState<any>(null)
 
   useEffect(() => {
     const loadFees = async () => {
@@ -62,6 +57,7 @@ export function CheckoutPanel() {
       })) as CheckoutLinkResult
 
       setLink(result)
+      setPaymentSuccessData(null) // Reset payment state on new link
       setMessage(result?.message || 'Link de pagamento criado com sucesso.')
     } catch (requestError: any) {
       const nextMessage =
@@ -75,49 +71,8 @@ export function CheckoutPanel() {
     }
   }
 
-  const handlePixPayment = async () => {
-    try {
-      setPaymentLoading(true)
-      setError('')
-      const response = (await payPix({
-        amount: Math.round(Number(amount || 0) * 100),
-        payerDocument,
-        description,
-        externalReference: `CHECKOUT-${Date.now()}`,
-      })) as { checkoutId?: string; copyPaste?: string; qrCodeBase64?: string; message?: string }
-
-      setLink(response)
-      setMessage(response?.message || 'Cobrança Pix gerada com sucesso.')
-    } catch (requestError: any) {
-      setError(requestError?.response?.data?.message || 'Não foi possível gerar o Pix.')
-    } finally {
-      setPaymentLoading(false)
-    }
-  }
-
-  const handleCardPayment = async () => {
-    try {
-      setPaymentLoading(true)
-      setError('')
-      const response = (await payCard({
-        amount: Math.round(Number(amount || 0) * 100),
-        installments: Number(cardData.installments),
-        feePercent: Number(fees[0]?.feePercent ?? 0),
-        cardNumber: cardData.cardNumber,
-        cardHolder: cardData.cardHolder,
-        expiryMonth: cardData.expiryMonth,
-        expiryYear: cardData.expiryYear,
-        cvv: cardData.cvv,
-        description,
-        externalReference: `CHECKOUT-${Date.now()}`,
-      })) as { message?: string, status?: string }
-
-      setMessage(response?.message || 'Pagamento com cartão realizado com sucesso.')
-    } catch (requestError: any) {
-      setError(requestError?.response?.data?.message || 'Não foi possível processar o pagamento com cartão.')
-    } finally {
-      setPaymentLoading(false)
-    }
+  const handlePaymentSuccess = (data: any) => {
+    setPaymentSuccessData(data)
   }
 
   return (
@@ -193,102 +148,63 @@ export function CheckoutPanel() {
         </div>
       ) : null}
 
-      {link ? (
-        <div className="rounded-[28px] border border-emerald-500/30 bg-emerald-500/5 p-6">
-          <h4 className="text-lg font-bold text-white">Link gerado</h4>
-          <p className="mt-3 break-all rounded-xl border border-emerald-500/20 bg-black/10 p-3 text-sm text-emerald-100">
-            {link.url || link.checkoutId || 'Link disponível'}
-          </p>
+      {link && !paymentSuccessData ? (
+        <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+          <h4 className="text-xl font-bold text-white mb-6">Simular Pagamento (Preview)</h4>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mb-8 flex rounded-xl bg-black/40 p-1 max-w-md mx-auto">
             <button
               type="button"
-              onClick={handlePixPayment}
-              disabled={paymentLoading}
-              className="rounded-xl border border-[#a855f7] bg-[#a855f7]/15 px-4 py-2 font-semibold text-white"
+              onClick={() => setActiveTab('PIX')}
+              className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-all ${activeTab === 'PIX'
+                ? 'bg-white text-black shadow-md'
+                : 'text-[#9ca3af] hover:text-white'
+                }`}
             >
-              Pagar com Pix
+              Pix
             </button>
             <button
               type="button"
-              onClick={handleCardPayment}
-              disabled={paymentLoading}
-              className="rounded-xl border border-[#34d399] bg-[#34d399]/15 px-4 py-2 font-semibold text-white"
+              onClick={() => setActiveTab('CARD')}
+              className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-all ${activeTab === 'CARD'
+                ? 'bg-white text-black shadow-md'
+                : 'text-[#9ca3af] hover:text-white'
+                }`}
             >
-              Pagar com cartão
+              Cartão de Crédito
             </button>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            {activeTab === 'PIX' ? (
+              <PixPayment
+                amount={Math.round(Number(amount || 0) * 100)}
+                description={description}
+                externalReference={link.externalReference || `CHECKOUT-${Date.now()}`}
+                onSuccess={handlePaymentSuccess}
+              />
+            ) : (
+              <CardPayment
+                amount={Math.round(Number(amount || 0) * 100)}
+                description={description}
+                externalReference={link.externalReference || `CHECKOUT-${Date.now()}`}
+                onSuccess={handlePaymentSuccess}
+              />
+            )}
           </div>
         </div>
       ) : null}
 
-      {link ? (
-        <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
-          <h4 className="text-lg font-bold text-white">Dados do cartão</h4>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <input
-              type="text"
-              placeholder="Número do cartão"
-              value={cardData.cardNumber}
-              onChange={(event) => setCardData((current) => ({ ...current, cardNumber: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-            <input
-              type="text"
-              placeholder="Nome no cartão"
-              value={cardData.cardHolder}
-              onChange={(event) => setCardData((current) => ({ ...current, cardHolder: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-            <input
-              type="text"
-              placeholder="MM"
-              value={cardData.expiryMonth}
-              onChange={(event) => setCardData((current) => ({ ...current, expiryMonth: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-            <input
-              type="text"
-              placeholder="AAAA"
-              value={cardData.expiryYear}
-              onChange={(event) => setCardData((current) => ({ ...current, expiryYear: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-            <input
-              type="text"
-              placeholder="CVV"
-              value={cardData.cvv}
-              onChange={(event) => setCardData((current) => ({ ...current, cvv: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-            <input
-              type="number"
-              min="1"
-              max="12"
-              placeholder="Parcelas"
-              value={cardData.installments}
-              onChange={(event) => setCardData((current) => ({ ...current, installments: event.target.value }))}
-              className="rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-            />
-          </div>
-        </div>
-      ) : null}
-
-      {message ? (
-        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
-          {message}
-        </div>
-      ) : null}
-
-      {error ? (
-        <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-200">
-          {error}
-        </div>
-      ) : null}
-
-      {link ? (
-        <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
-          <p className="text-sm text-[#cbd5e1]">Valor estimado</p>
-          <p className="mt-2 text-2xl font-bold text-white">{formatCentsToBRL(Number(amount || 0) * 100)}</p>
+      {paymentSuccessData ? (
+        <div className="mt-8">
+          <CheckoutResultCard
+            id={paymentSuccessData.id || paymentSuccessData.checkoutId || `CHK-${Date.now()}`}
+            amount={Math.round(Number(amount || 0) * 100)}
+            status={paymentSuccessData.status || 'APPROVED'}
+            paymentMethod={activeTab}
+            brand={paymentSuccessData.gatewayResponse?.metadata?.cardBrand || 'VISA'}
+            installments={paymentSuccessData.gatewayResponse?.metadata?.installments || 1}
+          />
         </div>
       ) : null}
     </section>

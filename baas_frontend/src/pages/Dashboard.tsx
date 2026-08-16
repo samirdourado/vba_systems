@@ -1,9 +1,9 @@
 import { LogOut } from 'lucide-react'
 import { useState } from 'react'
-import { CheckoutPanel } from '../components/dashboard/CheckoutPanel'
 import { WalletPanel } from '../components/dashboard/WalletPanel'
 import { WithdrawalPanel } from '../components/dashboard/WithdrawalPanel'
 import { useAuth } from '../context/AuthContext'
+import { CheckoutPage } from './checkout/CheckoutPage'
 
 type DashboardView = 'wallet' | 'withdrawal' | 'checkout'
 
@@ -45,11 +45,10 @@ export function DashboardPage({ onBack }: { onBack: () => void }) {
               key={item.key}
               type="button"
               onClick={() => setActiveView(item.key as DashboardView)}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
-                activeView === item.key
-                  ? 'bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] text-white shadow-[0_12px_25px_rgba(168,85,247,0.25)]'
-                  : 'bg-black/10 text-[#d1d5db] hover:bg-white/5'
-              }`}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${activeView === item.key
+                ? 'bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] text-white shadow-[0_12px_25px_rgba(168,85,247,0.25)]'
+                : 'bg-black/10 text-[#d1d5db] hover:bg-white/5'
+                }`}
             >
               {item.label}
             </button>
@@ -61,7 +60,9 @@ export function DashboardPage({ onBack }: { onBack: () => void }) {
         ) : activeView === 'withdrawal' ? (
           <WithdrawalPanel />
         ) : (
-          <CheckoutPanel />
+          <div className="rounded-[28px] overflow-hidden relative">
+            <CheckoutPage />
+          </div>
         )}
 
       </div>

@@ -189,15 +189,16 @@ export function WithdrawalPanel() {
   const displayReference = result?.externalReference || result?.metadata?.externalReference || '—'
 
   return (
-    <section className="space-y-6 rounded-[28px] border border-white/10 bg-white/5 p-6">
-      <div>
-        <h3 className="text-2xl font-bold text-white">Solicitar saque</h3>
-        <p className="mt-2 text-sm text-[#cbd5e1]">
-          Informe o valor em reais e a chave PIX para realizar a solicitação.
-        </p>
-      </div>
+    <section className="space-y-6">
+      <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
+        <div>
+          <h3 className="text-2xl font-bold text-white">Solicitar saque</h3>
+          <p className="mt-2 text-sm text-[#cbd5e1]">
+            Informe o valor em reais e a chave PIX para realizar a solicitação.
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label htmlFor="amount" className="mb-2 block text-sm font-medium text-[#d1d5db]">
@@ -316,8 +317,9 @@ export function WithdrawalPanel() {
           )}
         </button>
       </form>
+      </div>
 
-      <div className="border-t border-white/10 pt-6">
+      <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
         <h4 className="text-xl font-bold text-white">Consultar saque por ID</h4>
         <p className="mt-2 text-sm text-[#cbd5e1]">
           Insira o identificador da solicitação para verificar o status atual.
