@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* 1. Definição das Variáveis de Cores e Tipografia */
+:root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #ffffff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+}
+
+/* 2. Registro de Utilitários Customizados no Tema do Tailwind v4 */
+@theme {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --color-brand-bg: var(--bg);
+  --color-brand-text: var(--text);
+  --color-brand-heading: var(--text-h);
+  --color-brand-border: var(--border);
+  --color-brand-code: var(--code-bg);
+  --color-brand-accent: var(--accent);
+  --color-brand-accent-bg: var(--accent-bg);
+  --color-brand-accent-border: var(--accent-border);
+}
+
+/* 3. Base de Estilos Globais do App */
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Utilitários nativos mantidos para elementos HTML legados */
+h1, h2 {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+code {
+  font-family: var(--font-mono);
+  background: var(--code-bg);
+  color: var(--text-h);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
