@@ -20,6 +20,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
+    --text-b: #111111;
     --text-h: #f3f4f6;
     --bg: #16171d;
     --border: #2e303a;
@@ -39,6 +40,7 @@
 
   --color-brand-bg: var(--bg);
   --color-brand-text: var(--text);
+  --color-brand-text-b: var(--text-b);
   --color-brand-heading: var(--text-h);
   --color-brand-border: var(--border);
   --color-brand-code: var(--code-bg);
@@ -59,11 +61,16 @@ body {
 
 #root {
   width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
 }
 
 /* Utilitários nativos mantidos para elementos HTML legados */
