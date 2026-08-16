@@ -1,6 +1,48 @@
+import { useState } from 'react'
+import { useAuth } from './context/AuthContext'
+import { LoginPage } from './pages/Login'
+import { RegisterPage } from './pages/Register'
+import { DashboardPage } from './pages/Dashboard'
+import { RegisterSuccessPage } from './pages/RegisterSuccess'
+import { ForgotPasswordPage } from './pages/ForgotPassword'
+
 function App() {
+  const { isAuthenticated, isLoading } = useAuth()
+  const [view, setView] = useState<'home' | 'login' | 'register' | 'register-success' | 'forgot-password'>('home')
+
+  if (isLoading) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#050816] text-white">
+        <div className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-[#d1d5db]">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#c084fc] border-r-transparent" />
+          Carregando...
+        </div>
+      </main>
+    )
+  }
+
+  if (isAuthenticated) {
+    return <DashboardPage onBack={() => setView('home')} />
+  }
+
+  if (view === 'login') {
+    return <LoginPage onSwitchMode={() => setView('register')} onForgotPassword={() => setView('forgot-password')} />
+  }
+
+  if (view === 'register') {
+    return <RegisterPage onSwitchMode={() => setView('login')} onSuccess={() => setView('register-success')} />
+  }
+
+  if (view === 'register-success') {
+    return <RegisterSuccessPage onGoToLogin={() => setView('login')} />
+  }
+
+  if (view === 'forgot-password') {
+    return <ForgotPasswordPage onBackToLogin={() => setView('login')} />
+  }
+
   return (
-    <main className="min-h-screen w-full bg-[radial-gradient(circle_at_top_left,rgba(170,59,255,0.20),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,189,89,0.18),transparent_28%),linear-gradient(135deg,#000000_0%,#000000_32%,#000000_100%)] flex items-center justify-center">
+    <main className="flex min-h-screen w-full items-center justify-center bg-[radial-gradient(circle_at_top_left,rgba(170,59,255,0.20),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,189,89,0.18),transparent_28%),linear-gradient(135deg,#000000_0%,#000000_32%,#000000_100%)]">
       <section className="w-[min(1180px,calc(100%-32px))] px-5 pb-10 pt-7">
         <header className="mb-12 flex items-center justify-between gap-5 md:mb-14">
           <div className="flex items-center" aria-label="Logo do BAAS">
@@ -18,7 +60,7 @@ function App() {
         </header>
 
         <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
-          <div className="max-w-145 text-left lg:text-left">
+          <div className="max-w-145 text-left">
             <span className="inline-flex items-center rounded-full border border-[#a855f7]/50 bg-[#aa3bff]/10 px-3 py-2 text-[0.75rem] font-bold uppercase tracking-[0.08em] text-[#c084fc]">
               Plataforma financeira moderna
             </span>
@@ -31,21 +73,23 @@ function App() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
-              <a
-                href="login"
+              <button
+                type="button"
+                onClick={() => setView('login')}
                 className="rounded-xl bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] px-6 py-3 text-base font-bold text-white shadow-[0_14px_30px_rgba(170,59,255,0.25)] transition-transform hover:-translate-y-0.5"
               >
                 Fazer login
-              </a>
-              <a
-                href="register"
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('register')}
                 className="rounded-xl border border-[#e5e4e7]/60 bg-transparent px-6 py-3 text-base font-bold text-white transition-transform hover:-translate-y-0.5"
               >
                 Cadastrar
-              </a>
+              </button>
             </div>
 
-            <ul className="mt-8 flex flex-wrap gap-5 list-none p-0 text-sm text-[#9ca3af] md:text-base" aria-label="Benefícios">
+            <ul className="mt-8 flex list-none flex-wrap gap-5 p-0 text-sm text-[#9ca3af] md:text-base" aria-label="Benefícios">
               <li className="relative pl-5 before:absolute before:left-0 before:top-2 before:h-2 before:w-2 before:rounded-full before:bg-[#aa3bff] before:shadow-[0_0_0_4px_rgba(170,59,255,0.1)]">
                 Transferências rápidas
               </li>
