@@ -12,14 +12,14 @@ export class WithdrawalsController {
   constructor(private readonly withdrawalsService: WithdrawalsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Solicita a realização de um saque via PIX' })
+  @ApiOperation({ summary: 'Solicita o saque' })
   async create(@Req() req: any, @Body() dto: CreateWithdrawalDto) {
     const userId = req.user.id || req.user.sub;
     return this.withdrawalsService.createWithdrawal(userId, dto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtém o comprovante e status do saque por ID' })
+  @ApiOperation({ summary: 'Consulta saque por ID' })
   async findOne(@Req() req: any, @Param('id') id: string) {
     const userId = req.user.id || req.user.sub;
     return this.withdrawalsService.getWithdrawalById(userId, id);

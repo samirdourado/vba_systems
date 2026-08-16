@@ -20,13 +20,13 @@ export class CheckoutController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post('card')
-  @ApiOperation({ summary: 'Gera uma cobrança via Cartão de Crédito com verificação de taxa' })
+  @ApiOperation({ summary: 'Gera uma cobrança via Cartão com verificação de taxa' })
   async createCard(@Request() req, @Body() dto: CreateCardPaymentDto) {
     return this.checkoutService.processCardPayment(req.user, dto);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Busca o status e dados do checkout pelo ID' })
+  @ApiOperation({ summary: 'Consulta pagamento pelo ID' })
   async getCheckoutById(@Param('id') id: string) {
     return this.checkoutService.getCheckoutById(id);
   }

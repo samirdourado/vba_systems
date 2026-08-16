@@ -15,7 +15,7 @@ export class WebhookController {
 
   @Post('receiver')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Endpoint receptor de notificações da LeraBox' })
+  @ApiOperation({ summary: 'Endpoint receptor de notificações do gateway' })
   async handleIncomingWebhook(@Body() dto: ReceiveWebhookPayloadDto) {
     return this.webhookService.handleIncomingWebhook(dto);
   }
@@ -23,7 +23,7 @@ export class WebhookController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Post()
-  @ApiOperation({ summary: 'Cadastrar / Atualizar webhook na LeraBox' })
+  @ApiOperation({ summary: 'Cadastrar / Atualizar webhook no gateway' })
   async registerWebhook(@Request() req, @Body() dto: CreateLeraBoxWebhookDto) {
     const token = req.user?.gatewayAccount?.token || req.user?.gatewayToken;
     return this.leraBoxService.registerWebhook(token, dto);
@@ -32,7 +32,7 @@ export class WebhookController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get()
-  @ApiOperation({ summary: 'Listar webhooks cadastrados na LeraBox' })
+  @ApiOperation({ summary: 'Listar webhooks cadastrados no gateway' })
   async listWebhooks(@Request() req) {
     const token = req.user?.gatewayAccount?.token || req.user?.gatewayToken;
     return this.leraBoxService.listWebhooks(token);
@@ -41,7 +41,7 @@ export class WebhookController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Delete(':id')
-  @ApiOperation({ summary: 'Remover webhook da LeraBox' })
+  @ApiOperation({ summary: 'Remover webhook do gateway' })
   async deleteWebhook(@Request() req, @Param('id') webhookId: string) {
     const token = req.user?.gatewayAccount?.token || req.user?.gatewayToken;
     return this.leraBoxService.deleteWebhook(token, webhookId);

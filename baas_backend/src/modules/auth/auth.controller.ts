@@ -6,25 +6,25 @@ import { LoginMerchantDto } from './dto/login-merchant.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
-@ApiTags('Merchant Authentication')
+@ApiTags('Auth user')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'Register a new merchant in BaaS and Lera Box Gateway' })
+  @ApiOperation({ summary: 'Cadastro de usuários (PF ou PJ)' })
   @Post('register')
   async register(@Body() dto: RegisterMerchantDto) {
     return this.authService.register(dto);
   }
 
-  @ApiOperation({ summary: 'Login merchant into BaaS' })
+  @ApiOperation({ summary: 'Login público (CPF ou CNPJ + senha)' })
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() dto: LoginMerchantDto) {
     return this.authService.login(dto);
   }
 
-  @ApiOperation({ summary: 'Get profile of current authenticated merchant' })
+  @ApiOperation({ summary: 'Dados do usuário autenticado.' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -32,7 +32,7 @@ export class AuthController {
     return this.authService.getProfile(req.user);
   }
 
-  @ApiOperation({ summary: 'Registre nova senha com documento e e-mail' })
+  @ApiOperation({ summary: 'Reset de senha' })
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);

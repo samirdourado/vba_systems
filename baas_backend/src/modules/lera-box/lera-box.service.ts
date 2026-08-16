@@ -59,7 +59,7 @@ export class LeraBoxService {
       );
 
       throw new HttpException(
-        errorData?.message || 'Falha ao realizar cadastro na Lera Box',
+        errorData?.message || 'Falha ao realizar cadastro no gateway.',
         status,
       );
     }
@@ -85,7 +85,7 @@ export class LeraBoxService {
       this.logger.error(`Erro ao logar na Lera Box: ${JSON.stringify(errorData || error.message)}`);
       
       throw new HttpException(
-        errorData?.message || 'Falha na autenticação da Lera Box',
+        errorData?.message || 'Falha na autenticação com o Gateway.',
         error?.response?.status || HttpStatus.UNAUTHORIZED,
       );
     }
@@ -167,7 +167,7 @@ export class LeraBoxService {
   private getHeaders(token: string) {
     if (!token) {
       throw new HttpException(
-        'Token do gateway LeraBox não localizado no perfil do usuário.',
+        'Token do gateway não localizado no perfil do usuário.',
         HttpStatus.UNAUTHORIZED,
       );
     }
@@ -216,12 +216,12 @@ export class LeraBoxService {
   private handleAxiosError(error: any) {
     if (error.response) {
       throw new HttpException(
-        error.response.data || 'Erro na comunicação com a LeraBox',
+        error.response.data || 'Erro na comunicação com o gateway',
         error.response.status || HttpStatus.BAD_REQUEST,
       );
     }
     throw new HttpException(
-      'Falha de conexão com a API da LeraBox',
+      'Falha de conexão com a API dcom o gateway',
       HttpStatus.INTERNAL_SERVER_ERROR,
     );
   }

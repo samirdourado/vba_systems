@@ -12,7 +12,7 @@ export class WalletController {
   constructor(private readonly walletService: WalletService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Obtém o saldo atual e dados da carteira' })
+  @ApiOperation({ summary: 'Obtém os dados da carteira' })
   async getWallet(@Req() req: any) {
     const userId = req.user.id || req.user.sub;
     return this.walletService.getWalletByUserId(userId);

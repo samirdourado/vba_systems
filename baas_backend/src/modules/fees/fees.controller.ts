@@ -9,7 +9,7 @@ export class FeesController {
   constructor(private readonly feesService: FeesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Consulta as taxas de parcelamento para cartão' })
+  @ApiOperation({ summary: 'Consulta as taxas de cartão' })
   @ApiResponse({ status: 200, description: 'Lista de parcelas e respectivas taxas retornada com sucesso.' })
   async getFees(@Query() query: GetFeesQueryDto) {
     return this.feesService.listFees(query);
