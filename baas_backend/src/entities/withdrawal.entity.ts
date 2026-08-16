@@ -2,10 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { User } from './user.entity';
 
 export enum WithdrawalStatus {
+  APPROVED = 'APPROVED',
+  DENIED = 'DENIED',
   PENDING = 'PENDING',
   PROCESSING = 'PROCESSING',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
 }
 
 @Entity('withdrawals')
@@ -16,24 +17,30 @@ export class Withdrawal {
   @Column()
   userId!: string;
 
-  // @ManyToOne(() => User, (user) => user.withdrawals)
-  // @JoinColumn({ name: 'userId' })
-  // user!: User;
+  @ManyToOne(() => User, (user) => user.withdrawals, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user!: User;
 
   @Column('int')
-  amount!: number;
+  amount!: number; // Valor em centavos (ex: 10000 = R$ 100,00)
 
   @Column()
   pixKey!: string;
 
   @Column({ nullable: true })
-  pixKeyType?: string;
+  description?: string;
+
+  @Column({ nullable: true })
+  externalReference?: string;
+
+  @Column({ nullable: true })
+  document?: string;
 
   @Column({ type: 'enum', enum: WithdrawalStatus, default: WithdrawalStatus.PENDING })
   status!: WithdrawalStatus;
 
   @Column({ nullable: true })
-  gatewayWithdrawalId?: string;
+  denialReason?: string;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -33,8 +33,8 @@ export class User {
   @OneToMany(() => CheckoutLink, (link) => link.merchant)
   checkoutLinks?: CheckoutLink[];
 
-  // @OneToMany(() => Withdrawal, (withdrawal) => withdrawal.user)
-  // withdrawals?: Withdrawal[];
+  @OneToMany(() => Withdrawal, (withdrawal) => withdrawal.user)
+  withdrawals?: Withdrawal[];
 
   @CreateDateColumn()
   createdAt!: Date;

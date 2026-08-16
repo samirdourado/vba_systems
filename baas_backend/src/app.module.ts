@@ -9,6 +9,7 @@ import { FeesModule } from './modules/fees/fees.module';
 import { CheckoutModule } from './modules/checkout/checkout.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
 import { WalletModule } from './modules/wallet/wallet.module';
+import { WithdrawalsModule } from './modules/withdrawals/withdrawals.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
     CheckoutModule,
     WebhookModule,
     WalletModule,
+    WithdrawalsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
