@@ -22,7 +22,7 @@ export class Withdrawal {
   user!: User;
 
   @Column('int')
-  amount!: number; // Valor em centavos (ex: 10000 = R$ 100,00)
+  amount!: number;
 
   @Column()
   pixKey!: string;
