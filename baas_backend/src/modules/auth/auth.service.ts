@@ -58,6 +58,10 @@ export class AuthService {
       document: cleanDocument,
       phone: cleanPhone,
       password: hashedPassword,
+      wallet: {
+        balance: 0,
+        frozenBalance: 0,
+      },
     });
 
     await this.userRepository.save(user);

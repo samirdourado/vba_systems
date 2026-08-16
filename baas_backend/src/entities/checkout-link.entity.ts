@@ -23,7 +23,7 @@ export class CheckoutLink {
   externalReference: string;
 
   @Column({ type: 'int', comment: 'Valor em centavos' })
-  amountInCents: number;
+  amount: number;
 
   @Column({ type: 'enum', enum: PaymentMethod })
   paymentMethod: PaymentMethod;

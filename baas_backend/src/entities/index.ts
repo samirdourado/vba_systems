@@ -5,3 +5,4 @@ export * from './order.entity';
 export * from './transaction.entity';
 export * from './withdrawal.entity';
 export * from './webhook-event.entity';
+export * from './wallet.entity';

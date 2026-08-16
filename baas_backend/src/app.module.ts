@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { FeesModule } from './modules/fees/fees.module';
 import { CheckoutModule } from './modules/checkout/checkout.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
+import { WalletModule } from './modules/wallet/wallet.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { WebhookModule } from './modules/webhook/webhook.module';
     FeesModule,
     CheckoutModule,
     WebhookModule,
+    WalletModule,
   ],
   controllers: [AppController],
   providers: [AppService],

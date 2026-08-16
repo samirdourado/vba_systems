@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CheckoutLink, CheckoutStatus, WebhookEvent } from '@/entities';
+import { CheckoutLink, CheckoutStatus, Wallet, WebhookEvent } from '@/entities';
 import { ReceiveWebhookPayloadDto } from './dto/webhook.dto';
 
 @Injectable()
@@ -11,6 +11,8 @@ export class WebhookService {
     private readonly checkoutRepository: Repository<CheckoutLink>,
     @InjectRepository(WebhookEvent)
     private readonly webhookEventRepository: Repository<WebhookEvent>,
+    @InjectRepository(Wallet)
+    private readonly walletRepository: Repository<Wallet>,
   ) {}
 
   /**
@@ -71,7 +73,25 @@ export class WebhookService {
       switch (rawStatus) {
         case 'APPROVED':
         case 'PAID':
-          checkout.status = CheckoutStatus.APPROVED;
+          if (checkout.status !== CheckoutStatus.APPROVED) {
+            checkout.status = CheckoutStatus.APPROVED;
+
+            const merchantId = (checkout as any).merchantId || (checkout as any).userId;
+
+            if (merchantId) {
+              const wallet = await this.walletRepository.findOne({
+                where: { userId: merchantId },
+              });
+
+              if (wallet) {
+                const currentBalance = Number(wallet.balance || 0);
+                const amountToCredit = Number(checkout.amount || dto.amount || dto.data?.amount || 0);
+
+                wallet.balance = currentBalance + amountToCredit;
+                await this.walletRepository.save(wallet);
+              }
+            }
+          }
           break;
         case 'DENIED':
         case 'FAILED':

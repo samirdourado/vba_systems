@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { GatewayAccount } from './gateway-account.entity';
 import { CheckoutLink } from './checkout-link.entity';
 import { Withdrawal } from './withdrawal.entity';
+import { Wallet } from './wallet.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +26,9 @@ export class User {
 
   @OneToOne(() => GatewayAccount, (account) => account.user, { cascade: true })
   gatewayAccount?: GatewayAccount;
+
+  @OneToOne(() => Wallet, (wallet) => wallet.user, { cascade: true })
+  wallet?: Wallet;
 
   @OneToMany(() => CheckoutLink, (link) => link.merchant)
   checkoutLinks?: CheckoutLink[];

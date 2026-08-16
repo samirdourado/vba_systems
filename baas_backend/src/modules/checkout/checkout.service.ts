@@ -33,7 +33,7 @@ export class CheckoutService {
 
     const checkoutLink = this.checkoutRepository.create({
       externalReference,
-      amountInCents: dto.amount,
+      amount: dto.amount,
       paymentMethod: PaymentMethod.PIX,
       status: CheckoutStatus.PENDING,
       merchant: user,
@@ -55,7 +55,7 @@ export class CheckoutService {
     return {
       checkoutId: checkoutLink.id,
       externalReference: checkoutLink.externalReference,
-      amountInCents: checkoutLink.amountInCents,
+      amount: checkoutLink.amount,
       amountInReais,
       status: checkoutLink.status,
       qrCodeBase64: pixResponse?.qrCodeBase64,
@@ -92,7 +92,7 @@ export class CheckoutService {
 
     const checkoutLink = this.checkoutRepository.create({
       externalReference,
-      amountInCents: dto.amount,
+      amount: dto.amount,
       paymentMethod: PaymentMethod.CARD,
       installments: dto.installments,
       feePercent: dto.feePercent,
@@ -150,7 +150,7 @@ export class CheckoutService {
       checkoutId: checkoutLink.id,
       externalReference: checkoutLink.externalReference,
       status: checkoutLink.status,
-      amount: checkoutLink.amountInCents,
+      amount: checkoutLink.amount,
       gatewayResponse: cardResponse,
     };
   }
@@ -170,7 +170,7 @@ export class CheckoutService {
     return {
       id: checkout.id,
       externalReference: checkout.externalReference,
-      amountInCents: checkout.amountInCents,
+      amount: checkout.amount,
       paymentMethod: checkout.paymentMethod,
       installments: checkout.installments,
       feePercent: checkout.feePercent,
