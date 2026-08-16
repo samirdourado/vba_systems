@@ -2,7 +2,11 @@ export const formatCentsToBRL = (cents: number): string => {
   return new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-  }).format((cents || 0) / 100);
+  }).format((Number(cents || 0)) / 100);
+};
+
+export const parseBRLToCents = (value: string): number => {
+  return Number(value.replace(/\D/g, ''));
 };
 
 export const formatDateBR = (value?: string | null): string => {
@@ -21,11 +25,6 @@ export const formatDateBR = (value?: string | null): string => {
     month: '2-digit',
     year: 'numeric',
   }).format(date)
-};
-
-export const parseBRLToCents = (value: string): number => {
-  const cleanValue = value.replace(/\D/g, '');
-  return Number(cleanValue);
 };
 
 export const normalizeTransactionStatus = (status?: string): string => {

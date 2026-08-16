@@ -57,7 +57,7 @@ export function WalletPanel() {
           return
         }
 
-        setBalance(Number(wallet?.balance ?? 0))
+        setBalance(Math.round(Number(wallet?.balance ?? 0) * 100))
         await loadTransactions()
       } catch (error) {
         console.error('Erro ao carregar carteira', error)
@@ -84,6 +84,14 @@ export function WalletPanel() {
   }, [limit, status, type])
 
   const balanceText = loading ? 'Carregando...' : showValues ? formatCentsToBRL(balance) : 'R$ •••••••'
+
+  const formatCardTitle = (value?: string) => {
+    if (!value) {
+      return 'Pagamento'
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+  }
 
   return (
     <section className="space-y-6">
@@ -178,7 +186,7 @@ export function WalletPanel() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="max-w-full truncate text-sm font-medium text-white sm:text-base">
-                      {transaction.externalReference || transaction.paymentMethod || 'Pagamento'}
+                      {formatCardTitle(transaction.externalReference || transaction.paymentMethod || 'Pagamento')}
                     </p>
                     <span className={`inline-flex shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${getStatusBadgeClasses(transaction.status)}`}>
                       {normalizeTransactionStatus(transaction.status)}
