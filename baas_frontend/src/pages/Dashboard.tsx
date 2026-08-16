@@ -1,8 +1,15 @@
-import { LogOut, ArrowUpRight, Wallet, CreditCard, TrendingUp } from 'lucide-react'
+import { LogOut } from 'lucide-react'
+import { useState } from 'react'
+import { CheckoutPanel } from '../components/dashboard/CheckoutPanel'
+import { WalletPanel } from '../components/dashboard/WalletPanel'
+import { WithdrawalPanel } from '../components/dashboard/WithdrawalPanel'
 import { useAuth } from '../context/AuthContext'
+
+type DashboardView = 'wallet' | 'withdrawal' | 'checkout'
 
 export function DashboardPage({ onBack }: { onBack: () => void }) {
   const { user, logout } = useAuth()
+  const [activeView, setActiveView] = useState<DashboardView>('wallet')
 
   const handleLogout = () => {
     logout()
@@ -28,48 +35,35 @@ export function DashboardPage({ onBack }: { onBack: () => void }) {
           </button>
         </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-[#cbd5e1]">Saldo</span>
-              <Wallet className="text-[#c084fc]" size={18} />
-            </div>
-            <p className="text-3xl font-bold text-white">R$ 24.680,00</p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-[#cbd5e1]">Pagamentos</span>
-              <CreditCard className="text-[#34d399]" size={18} />
-            </div>
-            <p className="text-3xl font-bold text-white">R$ 8.940</p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <span className="text-sm text-[#cbd5e1]">Crescimento</span>
-              <TrendingUp className="text-[#fbbf24]" size={18} />
-            </div>
-            <p className="text-3xl font-bold text-white">+18,4%</p>
-          </div>
-        </section>
-
-        <section className="mt-8 rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm text-[#cbd5e1]">Resumo da conta</p>
-              <h2 className="mt-2 text-2xl font-bold text-white">Operações recentes</h2>
-            </div>
-
+        <nav className="mb-8 flex flex-wrap gap-3 rounded-[22px] border border-white/10 bg-white/5 p-3">
+          {[
+            { key: 'wallet', label: 'Carteira e extrato' },
+            { key: 'withdrawal', label: 'Solicitar saque' },
+            { key: 'checkout', label: 'Checkout / Pix / Cartão' },
+          ].map((item) => (
             <button
+              key={item.key}
               type="button"
-              className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] px-4 py-2 font-semibold text-white"
+              onClick={() => setActiveView(item.key as DashboardView)}
+              className={`rounded-xl px-4 py-2 text-sm font-semibold transition ${
+                activeView === item.key
+                  ? 'bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] text-white shadow-[0_12px_25px_rgba(168,85,247,0.25)]'
+                  : 'bg-black/10 text-[#d1d5db] hover:bg-white/5'
+              }`}
             >
-              Ver detalhes
-              <ArrowUpRight size={16} />
+              {item.label}
             </button>
-          </div>
-        </section>
+          ))}
+        </nav>
+
+        {activeView === 'wallet' ? (
+          <WalletPanel />
+        ) : activeView === 'withdrawal' ? (
+          <WithdrawalPanel />
+        ) : (
+          <CheckoutPanel />
+        )}
+
       </div>
     </main>
   )
