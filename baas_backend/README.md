@@ -1,110 +1,224 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend BaaS - VBA Systems
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Visão geral
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Este repositório contém a API backend do projeto BaaS, desenvolvida em NestJS e integrada ao gateway Lera Box para cadastro de lojistas, autenticação, gestão de carteira, checkout, webhooks e saques.
 
-## Description
+A aplicação expõe a documentação interativa via Swagger para facilitar testes e integração.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Stack
 
-## Project setup
+- Node.js
+- NestJS
+- TypeScript
+- MySQL
+- TypeORM
+- JWT
+- Swagger
+- Docker Compose
+
+## Setup local
+
+### 1) Pré-requisitos
+
+- Node.js 20+
+- npm
+- Docker e Docker Compose
+- MySQL 8 (subido via Docker no projeto)
+
+### 2) Instalar dependências
 
 ```bash
-$ npm install
+cd baas_backend
+npm install
 ```
 
-## Compile and run the project
+### 3) Subir o banco MySQL com Docker
+
+No diretório raiz do workspace:
 
 ```bash
-# development
-$ npm run start
+docker compose up -d mysql
+```
+
+Isso cria o container com:
+
+- banco: `baas_db`
+- usuário: `samirdourado`
+- senha: `baas_password`
+- porta: `3306`
+
+### 4) Configurar variáveis de ambiente
+
+O projeto inclui um arquivo de ambiente `.env` para desenvolvimento local; ele é lido automaticamente pelo NestJS e contém as variáveis principais:
+
+```env
+PORT=3000
+
+DB_HOST='localhost'
+DB_PORT='3306'
+DB_USERNAME='samirdourado'
+DB_PASSWORD='baas_password'
+DB_DATABASE='baas_db'
+
+GATEWAY_BASE_URL='https://api.branchpay.com.br/api'
+APP_BASE_URL='https://api.seudominio.com'
+WEBHOOK_SECRET='DLhxy@4oW%'
+JWT_SECRET='8Acp8f@bWT'
+```
+
+> Caso queira rodar em outro ambiente, ajuste essas variáveis antes de iniciar a API.
+
+### 5) Compilar e executar a aplicação
+
+```bash
+# desenvolvimento
+npm run start
 
 # watch mode
-$ npm run start:dev
+npm run start:dev
 
-# production mode
-$ npm run start:prod
+# produção
+npm run start:prod
+```
+
+### 6) Verificar a aplicação
+
+A API inicia na porta 3000 por padrão.
+
+- API local: `http://localhost:3000`
+- Swagger: `http://localhost:3000/api/docs`
+
+## URL do Swagger da aplicação baas
+
+A documentação OpenAPI/Swagger está disponível em:
+
+```text
+http://localhost:3000/api/docs
+```
+
+Essa rota é o ponto principal para consultar endpoints, autenticar tokens Bearer e testar os fluxos de cadastro, login, carteira, checkout e webhook.
+
+## URL pública e/ou Docker disponível
+
+No estado atual do projeto, não há uma URL pública de produção configurada e nem um container da API no `docker-compose.yml`.
+
+Ambiente disponível atualmente:
+
+- Banco em Docker: `docker compose up -d mysql`
+- API local: `http://localhost:3000`
+- Swagger local: `http://localhost:3000/api/docs`
+
+Se a aplicação for implantada em um ambiente externo, o valor de `APP_BASE_URL` deve apontar para a URL pública da API e as rotas de webhook devem refletir esse domínio.
+
+## Credenciais de demonstração
+
+Para fins de documentação e testes locais, o login do BaaS usa o documento cadastrado do lojista e a senha configurada no cadastro.
+
+- Documento de exemplo: `340xxxxx801`
+- Endpoint: `POST /auth/login`
+- Tipo de autenticação: `document` + `password`
+
+Importante:
+
+- Não compartilhe a senha do e-mail usado no gateway.
+- Não exponha o e-mail do gateway em documentação pública.
+- O e-mail do cadastro deve ser tratado como dado sensível do ambiente de uso autorizado.
+
+Exemplo de payload para login:
+
+```json
+{
+  "document": "340xxxxx801",
+  "password": "SuaSenhaCadastrada"
+}
+```
+
+> O valor acima deve ser usado apenas como referência mascarada do CPF e não como dado real compartilhável em ambiente público.
+
+## Endpoints principais
+
+### Autenticação
+
+- `POST /auth/register` — cadastro de usuário/lojista
+- `POST /auth/login` — login público com documento e senha
+- `GET /auth/me` — dados do usuário autenticado
+- `POST /auth/reset-password` — reset de senha
+
+### Checkout
+
+- `POST /checkout/pix` — geração de cobrança pix
+- `POST /checkout/card` — geração de cobrança por cartão
+- `GET /checkout/:id` — consulta de checkout
+
+### Carteira
+
+- `GET /wallet/balance` — saldo da carteira
+- `GET /wallet/transactions` — histórico de transações
+
+### Saques
+
+- `POST /withdrawals` — solicitar saque
+- `GET /withdrawals` — listar saques
+
+### Webhooks
+
+- `POST /webhook` — recebimento de eventos do gateway
+- `GET /webhook` — listar eventos
+- `DELETE /webhook/:id` — remover evento
+
+## Fluxo de autenticação
+
+1. O lojista realiza cadastro em `POST /auth/register`.
+2. O backend registra o usuário localmente e integra com o gateway Lera Box.
+3. O login é feito em `POST /auth/login` com CPF/CNPJ e senha.
+4. A resposta retorna um `access_token` JWT em formato Bearer.
+5. Os endpoints protegidos usam o cabeçalho:
+
+```http
+Authorization: Bearer <token>
 ```
 
 ## Run tests
 
 ```bash
-# unit tests
-$ npm run test
+# testes unitários
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# testes e2e
+npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+# cobertura
+npm run test:cov
 ```
 
 ## Hints
-```bash
-# create module
-$ npx nest g module modules/module-name
-
-# create controller
-$ npx nest g controller modules/controller-name
-
-# create service
-$ npx nest g service modules/service-name
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# criar módulo
+npx nest g module modules/module-name
+
+# criar controller
+npx nest g controller modules/controller-name
+
+# criar service
+npx nest g service modules/service-name
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Observações importantes
 
-## Resources
+- A API usa validação global com `ValidationPipe`.
+- O CORS está habilitado.
+- O Swagger é montado em `/api/docs`.
+- O backend depende do gateway Lera Box para autenticação e processamento financeiro.
+- Para produção, é necessário revisar segredo JWT, webhook secret e URLs públicas antes do deploy.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Segurança
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+- Nunca versionar senhas reais nem tokens de produção.
+- Não compartilhar credenciais do gateway em issues, PRs ou documentos públicos.
+- Usar ambiente com variáveis sensíveis protegidas.
 
-## Support
+## Licença
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Este projeto é parte da solução interna da VBA Systems e segue as regras de uso e distribuição do ambiente do cliente.
