@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Logger, BadRequestException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
@@ -103,6 +103,23 @@ export class LeraBoxService {
         error?.response?.data?.message || 'Falha ao buscar perfil no gateway',
         error?.response?.status || HttpStatus.UNAUTHORIZED,
       );
+    }
+  }
+
+  async resetPassword(data: { document: string; email: string }) {
+    try {
+      const response = await this.httpService.axiosRef.post(
+        `${this.baseUrl}/auth/reset-password`,
+        {
+          document: data.document,
+          email: data.email,
+        },        
+      );
+
+      return response.data;
+    } catch (error: any) {
+      this.logger.error('Erro ao resetar senha no Lera Box:', error?.response?.data || error.message);
+      throw new BadRequestException('Erro ao solicitar redefinição de senha junto ao gateway.');
     }
   }
 

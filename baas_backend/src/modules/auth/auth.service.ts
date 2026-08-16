@@ -7,6 +7,7 @@ import { User, GatewayAccount } from '../../entities';
 import { LeraBoxService } from '../lera-box/lera-box.service';
 import { RegisterMerchantDto } from './dto/register-merchant.dto';
 import { LoginMerchantDto } from './dto/login-merchant.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -140,5 +141,33 @@ export class AuthService {
       throw new UnauthorizedException('Conta do gateway não vinculada ou token ausente.');
      }  
     return this.leraBoxService.getUserProfile(user.gatewayAccount.token);
-  } 
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const cleanDocument = dto.document.replace(/\D/g, '');
+    
+    const user = await this.userRepository.findOne({
+      where: {
+        email: dto.email,
+        document: cleanDocument,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado. Verifique se o e-mail e o documento estão corretos.');
+    }
+    
+    if (this.leraBoxService && typeof this.leraBoxService.resetPassword === 'function') {
+      await this.leraBoxService.resetPassword({
+        document: cleanDocument,
+        email: dto.email,
+      });
+    }
+
+    return {
+      message: 'Nova senha gerada e enviada para o e-mail cadastrado. Use-a em POST /api/auth/login.',
+      email: user.email,
+      document: user.document,
+    };
+  }
 }

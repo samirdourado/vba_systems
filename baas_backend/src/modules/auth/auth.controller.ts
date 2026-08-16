@@ -1,18 +1,10 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  UseGuards,
-  Request,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterMerchantDto } from './dto/register-merchant.dto';
 import { LoginMerchantDto } from './dto/login-merchant.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Merchant Authentication')
 @Controller('auth')
@@ -38,5 +30,11 @@ export class AuthController {
   @Get('me')
   async getProfile(@Request() req: any) {
     return this.authService.getProfile(req.user);
+  }
+
+  @ApiOperation({ summary: 'Registre nova senha com documento e e-mail' })
+  @Post('reset-password')
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 }
