@@ -100,7 +100,7 @@ export function CheckoutPage() {
         : "flex min-h-screen justify-center bg-[radial-gradient(circle_at_top_left,rgba(170,59,255,0.20),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(255,189,89,0.18),transparent_28%),linear-gradient(135deg,#000000_0%,#0f172a_50%,#020617_100%)] p-4 pt-12 sm:p-8 sm:pt-20"
     }>
 
-      <div className={`flex w-full flex-col items-center ${isDashboardView ? '' : 'max-w-[1000px]'}`}>
+      <div className={`flex w-full flex-col items-center ${isDashboardView ? '' : 'max-w-250'}`}>
         {/* Header (Logo Seguro) */}
         <header className="mb-8 flex w-full items-center justify-center gap-3">
           <img src="/logo.webp" alt="Logo BAAS" className="h-8 object-contain" />
@@ -141,7 +141,7 @@ export function CheckoutPage() {
                   </button>
                 </div>
 
-                <div className="min-h-[300px]">
+                <div className="min-h-75">
                   {paymentMethod === 'PIX' ? (
                     <PixPayment
                       amount={checkoutInfo.amount}

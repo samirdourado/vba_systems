@@ -24,7 +24,7 @@ export function CheckoutPanel() {
   const [fees, setFees] = useState<any[]>([])
   const [link, setLink] = useState<any>(null)
   const [error, setError] = useState('')
-  const [mesage, setMessage] = useState('')
+  const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<'PIX' | 'CARD'>('PIX')
   const [paymentSuccessData, setPaymentSuccessData] = useState<any>(null)
@@ -79,6 +79,18 @@ export function CheckoutPanel() {
     <section className="space-y-6">
       <div className="rounded-[28px] border border-white/10 bg-white/5 p-6">
         <h3 className="text-2xl font-bold text-white">Gerar checkout</h3>
+
+        {message && (
+          <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+            {message}
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-100">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleCreateLink} className="mt-6 grid gap-4 md:grid-cols-2">
           <div>

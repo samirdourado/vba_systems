@@ -9,10 +9,39 @@ interface CardPaymentProps {
   onSuccess: (data: any) => void
 }
 
+type FeeOption = {
+  id?: string
+  brand?: string
+  installments: number
+  feePercent: number
+  feePercentFormatted?: string
+}
+
+const brandOptions = [
+  { value: '', label: 'Todas' },
+  { value: 'VISA', label: 'Visa' },
+  { value: 'MASTERCARD', label: 'Master Card' },
+  { value: 'ELO', label: 'Elo' },
+]
+
+const formatBrandLabel = (brand?: string) => {
+  switch (brand?.toUpperCase()) {
+    case 'VISA':
+      return 'Visa'
+    case 'MASTERCARD':
+      return 'Master Card'
+    case 'ELO':
+      return 'Elo'
+    default:
+      return 'Todas'
+  }
+}
+
 export function CardPayment({ amount, description, externalReference, onSuccess }: CardPaymentProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [fees, setFees] = useState<{ installments: number; feePercent: number }[]>([])
+  const [fees, setFees] = useState<FeeOption[]>([])
+  const [selectedBrand, setSelectedBrand] = useState('')
   const [selectedInstallment, setSelectedInstallment] = useState(1)
 
   const [cardData, setCardData] = useState({
@@ -26,15 +55,20 @@ export function CardPayment({ amount, description, externalReference, onSuccess 
   useEffect(() => {
     const fetchFees = async () => {
       try {
-        const response = await getFees()
+        const response = await getFees(selectedBrand ? { brand: selectedBrand } : undefined)
         const feeList = Array.isArray(response) ? response : response?.fees ?? []
         setFees(feeList)
+
+        if (!feeList.some((fee: FeeOption) => fee.installments === selectedInstallment)) {
+          setSelectedInstallment(feeList[0]?.installments ?? 1)
+        }
       } catch (err) {
         console.error('Failed to load fees', err)
       }
     }
+
     fetchFees()
-  }, [])
+  }, [selectedBrand])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -151,27 +185,46 @@ export function CardPayment({ amount, description, externalReference, onSuccess 
       </div>
 
       {fees.length > 0 && (
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[#d1d5db]">Parcelas</label>
-          <select
-            value={selectedInstallment}
-            onChange={(e) => setSelectedInstallment(Number(e.target.value))}
-            className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
-          >
-            {fees.map((fee) => {
-              // Calcular valor aproximado
-              const baseValue = amount / 100
-              const tx = fee.feePercent / 100
-              // Considerando um cálculo simples apenas para display (a API fará o real)
-              const installmentValue = (baseValue * (1 + tx)) / fee.installments
-              return (
-                <option key={fee.installments} value={fee.installments}>
-                  {fee.installments}x de {installmentValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} 
-                  {fee.installments === 1 ? ' à vista' : ` (${fee.feePercent}% taxa)`}
+        <div className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[#d1d5db]">Bandeira</label>
+            <select
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
+            >
+              {brandOptions.map((brand) => (
+                <option key={brand.value || 'all'} value={brand.value}>
+                  {brand.label}
                 </option>
-              )
-            })}
-          </select>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-[#d1d5db]">Parcelas</label>
+            <select
+              value={selectedInstallment}
+              onChange={(e) => setSelectedInstallment(Number(e.target.value))}
+              className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
+            >
+              {fees.map((fee) => {
+                const baseValue = amount / 100
+                const tx = fee.feePercent / 100
+                const installmentValue = (baseValue * (1 + tx)) / fee.installments
+                const brandLabel = formatBrandLabel(fee.brand)
+                const feeLabel = fee.feePercentFormatted || `${fee.feePercent}%`
+
+                return (
+                  <option key={`${fee.brand}-${fee.installments}`} value={fee.installments}>
+                    {fee.installments}x de {installmentValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    {fee.installments === 1 ? ' à vista' : ` (${feeLabel} de taxa)`}
+                    {selectedBrand === '' ? ` • ${brandLabel}` : ''}
+                  </option>
+                )
+              })}
+            </select>
+          </div>
         </div>
       )}
 
