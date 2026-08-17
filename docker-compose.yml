@@ -1,19 +1,64 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: baas_mysql
     restart: always
+    env_file:
+      - ./.env.production
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: baas_db
-      MYSQL_USER: samirdourado
-      MYSQL_PASSWORD: baas_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_DATABASE:-baas_db}
+      MYSQL_USER: ${DB_USERNAME:-samirdourado}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-baas_password}
     ports:
-      - '3306:3306'
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./baas_backend
+      dockerfile: Dockerfile
+    container_name: baas_backend
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - ./.env.production
+    environment:
+      PORT: ${PORT:-3000}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USERNAME: ${DB_USERNAME:-samirdourado}
+      DB_PASSWORD: ${DB_PASSWORD:-baas_password}
+      DB_DATABASE: ${DB_DATABASE:-baas_db}
+      GATEWAY_BASE_URL: ${GATEWAY_BASE_URL:-https://api.branchpay.com.br/api}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      JWT_SECRET: ${JWT_SECRET:-change_me}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-change_me}
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: ./baas_frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+    container_name: baas_frontend
+    restart: always
+    depends_on:
+      - backend
+    env_file:
+      - ./.env.production
+    ports:
+      - "5173:80"
 
 volumes:
   mysql_data:

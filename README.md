@@ -177,6 +177,34 @@ vba_systems/
 
 ## Setup local
 
+### Docker Compose (recomendado para executar todo o projeto)
+
+O repositório já conta com um arquivo de configuração do Docker Compose para subir os três serviços principais do projeto:
+
+- MySQL
+- backend NestJS
+- frontend React
+
+Para subir tudo em container:
+
+```bash
+docker compose up --build
+```
+
+Depois que os contêineres subirem, os serviços ficam disponíveis em:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:3000`
+- MySQL: `localhost:3306`
+
+O arquivo de ambiente usado pelo compose está em:
+
+- `.env.production`
+
+Esse arquivo contém as variáveis do backend e do frontend para execução em container e fica ignorado no Git para não expor segredos.
+
+> As variáveis sensíveis do ambiente devem ser preenchidas localmente e, quando necessário para avaliação por e-mail, enviadas por canal seguro, sem versionar no repositório.
+
 ### Pré-requisitos
 
 - Node.js 20+
