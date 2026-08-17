@@ -37,12 +37,23 @@ const formatBrandLabel = (brand?: string) => {
   }
 }
 
+const detectCardBrand = (cardNumber: string) => {
+  const digits = cardNumber.replace(/\D/g, '')
+
+  if (/^4/.test(digits)) return 'VISA'
+  if (/^(5[1-5]|2[2-7])/.test(digits)) return 'MASTERCARD'
+  if (/^(4011|431274|438935|451416|457393|4576|4577|5067|5090|627780|636297|6500|6501|6502|6503|6504|6505|6506|6507|6508|6509|6510|6511|6512|6513|6514|6515|6516|6517|6518|6519|6521|6522|6550)/.test(digits)) return 'ELO'
+
+  return 'VISA'
+}
+
 export function CardPayment({ amount, description, externalReference, onSuccess }: CardPaymentProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [fees, setFees] = useState<FeeOption[]>([])
   const [selectedBrand, setSelectedBrand] = useState('')
   const [selectedInstallment, setSelectedInstallment] = useState(1)
+  const [selectedFeeKey, setSelectedFeeKey] = useState<string>('')
 
   const [cardData, setCardData] = useState({
     cardNumber: '',
@@ -53,29 +64,51 @@ export function CardPayment({ amount, description, externalReference, onSuccess 
   })
 
   useEffect(() => {
+    const baseBrand = selectedBrand || detectCardBrand(cardData.cardNumber)
     const fetchFees = async () => {
       try {
-        const response = await getFees(selectedBrand ? { brand: selectedBrand } : undefined)
+        const response = await getFees(baseBrand ? { brand: baseBrand } : undefined)
         const feeList = Array.isArray(response) ? response : response?.fees ?? []
         setFees(feeList)
 
-        if (!feeList.some((fee: FeeOption) => fee.installments === selectedInstallment)) {
-          setSelectedInstallment(feeList[0]?.installments ?? 1)
+        const firstFee = feeList[0]
+        const defaultKey = firstFee ? `${firstFee.brand ?? 'ALL'}-${firstFee.installments}` : ''
+
+        setSelectedFeeKey((currentKey) => {
+          if (!currentKey || !feeList.some((fee: FeeOption) => `${fee.brand ?? 'ALL'}-${fee.installments}` === currentKey)) {
+            return defaultKey
+          }
+          return currentKey
+        })
+
+        const currentFee = feeList.find((fee: FeeOption) => `${fee.brand ?? 'ALL'}-${fee.installments}` === selectedFeeKey)
+        if (currentFee) {
+          setSelectedInstallment(currentFee.installments)
+        } else if (firstFee) {
+          setSelectedInstallment(firstFee.installments)
         }
       } catch (err) {
         console.error('Failed to load fees', err)
       }
     }
 
-    fetchFees()
-  }, [selectedBrand])
+    if (cardData.cardNumber.length >= 4 || selectedBrand) {
+      fetchFees()
+    }
+  }, [selectedBrand, cardData.cardNumber])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError('')
 
-    const feePercent = fees.find((f) => f.installments === selectedInstallment)?.feePercent || 0
+    const resolvedBrand = (selectedBrand || detectCardBrand(cardData.cardNumber)) as 'VISA' | 'MASTERCARD' | 'ELO'
+    const matchingFee = fees.find((fee) => {
+      const isSameOption = `${fee.brand ?? 'ALL'}-${fee.installments}` === selectedFeeKey
+      const isSameBrand = !selectedBrand || fee.brand?.toUpperCase() === resolvedBrand.toUpperCase()
+      return isSameOption || (isSameBrand && fee.installments === selectedInstallment)
+    })
+    const feePercent = matchingFee?.feePercent ?? 0
 
     try {
       const result = await payCard({
@@ -204,8 +237,15 @@ export function CardPayment({ amount, description, externalReference, onSuccess 
           <div>
             <label className="mb-2 block text-sm font-medium text-[#d1d5db]">Parcelas</label>
             <select
-              value={selectedInstallment}
-              onChange={(e) => setSelectedInstallment(Number(e.target.value))}
+              value={selectedFeeKey}
+              onChange={(e) => {
+                const nextKey = e.target.value
+                const nextFee = fees.find((fee) => `${fee.brand ?? 'ALL'}-${fee.installments}` === nextKey)
+                setSelectedFeeKey(nextKey)
+                if (nextFee) {
+                  setSelectedInstallment(nextFee.installments)
+                }
+              }}
               className="w-full rounded-xl border border-white/10 bg-[#1e293b] px-4 py-3 text-white focus:border-[#a855f7] focus:outline-none"
             >
               {fees.map((fee) => {
@@ -216,7 +256,7 @@ export function CardPayment({ amount, description, externalReference, onSuccess 
                 const feeLabel = fee.feePercentFormatted || `${fee.feePercent}%`
 
                 return (
-                  <option key={`${fee.brand}-${fee.installments}`} value={fee.installments}>
+                  <option key={`${fee.brand}-${fee.installments}`} value={`${fee.brand ?? 'ALL'}-${fee.installments}`}>
                     {fee.installments}x de {installmentValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                     {fee.installments === 1 ? ' à vista' : ` (${feeLabel} de taxa)`}
                     {selectedBrand === '' ? ` • ${brandLabel}` : ''}

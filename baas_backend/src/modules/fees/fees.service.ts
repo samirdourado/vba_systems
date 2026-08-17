@@ -16,27 +16,49 @@ export class FeesService {
   }
 
   /**
-   * Valida se a taxa e o número de parcelas informados conferem com a tabela do gateway
+   * Resolve o feePercent correto da tabela do gateway para a bandeira e número de parcelas.
+   * A tabela do gateway é a fonte da verdade; nunca é estendida por valores fixos no frontend/backend.
    */
-  async validateFeePercent(installment: number, feePercent: number, brand?: string): Promise<boolean> {
+  async resolveFeePercent(installment: number, brand?: string): Promise<number> {
     const response = await this.leraBoxService.getFees(brand);
-    const feesList = response?.fees || response;
-    const feeConfig = feesList.find(
-      (fee: any) => Number(fee.installments) === Number(installment) && (!brand || fee.brand?.toUpperCase() === brand.toUpperCase())
-    );
+    const feesList = Array.isArray(response) ? response : response?.fees || [];
 
-    if (!feeConfig) {
+    if (!Array.isArray(feesList) || feesList.length === 0) {
+      throw new BadRequestException('Tabela de taxas do gateway indisponível no momento.');
+    }
+
+    const normalizedBrand = brand?.toUpperCase();
+    const exactMatches = feesList.filter((fee: any) => {
+      const sameInstallment = Number(fee.installments) === Number(installment);
+      const sameBrand = !normalizedBrand || fee.brand?.toUpperCase() === normalizedBrand;
+      return sameInstallment && sameBrand;
+    });
+
+    const fallbackMatches = feesList.filter((fee: any) => Number(fee.installments) === Number(installment));
+    const candidates = exactMatches.length > 0 ? exactMatches : fallbackMatches;
+
+    if (candidates.length === 0) {
       throw new BadRequestException(
         `Número de parcelas (${installment}x) inválido para a bandeira informada.`,
       );
     }
 
-    if (Number(feeConfig.feePercent) !== Number(feePercent)) {
-      throw new BadRequestException(
-        `Taxa de cartão incorreta para ${installment}x. A taxa atual do gateway é ${feeConfig.feePercent}%.`,
-      );
+    return Number(candidates[0].feePercent);
+  }
+
+  /**
+   * Valida se a taxa e o número de parcelas informados conferem com a tabela do gateway
+   */
+  async validateFeePercent(installment: number, feePercent: number, brand?: string): Promise<boolean> {
+    const expectedFee = await this.resolveFeePercent(installment, brand);
+    const requested = Number(feePercent);
+
+    if (Math.abs(expectedFee - requested) < 0.0001) {
+      return true;
     }
 
-    return true;
+    throw new BadRequestException(
+      `Taxa de cartão incorreta para ${installment}x. A taxa atual do gateway é ${expectedFee}%.`,
+    );
   }
 }

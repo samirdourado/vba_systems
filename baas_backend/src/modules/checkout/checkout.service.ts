@@ -104,12 +104,14 @@ export class CheckoutService {
       throw new BadRequestException('Conta do gateway não configurada para este lojista.');
     }
 
+    const detectedBrand = this.detectCardBrand(dto.cardNumber);
+
     if (this.feesService) {
       try {
         await this.feesService.validateFeePercent(
           dto.installments,
           dto.feePercent,
-          'VISA',
+          detectedBrand,
         );
       } catch (error: any) {
         throw new BadRequestException(
@@ -183,6 +185,16 @@ export class CheckoutService {
       amount: checkoutLink.amount,
       gatewayResponse: cardResponse,
     };
+  }
+
+  private detectCardBrand(cardNumber: string): string {
+    const digits = cardNumber.replace(/\D/g, '');
+
+    if (/^4/.test(digits)) return 'VISA';
+    if (/^(5[1-5]|2[2-7])/.test(digits)) return 'MASTERCARD';
+    if (/^(4011|431274|438935|451416|457393|4576|4577|5067|5090|627780|636297|6500|6501|6502|6503|6504|6505|6506|6507|6508|6509|6510|6511|6512|6513|6514|6515|6516|6517|6518|6519|6521|6522|6550)/.test(digits)) return 'ELO';
+
+    return 'VISA';
   }
 
   /**
