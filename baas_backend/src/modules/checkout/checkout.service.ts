@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, Logger, ConflictException, InternalServerErrorException, NotFoundException, } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ConfigService } from '@nestjs/config';
 import { User, CheckoutLink, PaymentMethod, CheckoutStatus } from '@/entities';
 import { CreatePixPaymentDto, CreateCardPaymentDto } from './dto/create-checkout.dto';
 import { LeraBoxService } from '../lera-box/lera-box.service';
@@ -16,6 +17,7 @@ export class CheckoutService {
     private readonly checkoutRepository: Repository<CheckoutLink>,
     private readonly leraBoxService: LeraBoxService,
     private readonly feesService: FeesService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
@@ -46,6 +48,34 @@ export class CheckoutService {
       externalReference,
       ...(dto.description && { description: dto.description }),
     });
+
+    try {
+      const publicBaseUrl =
+        this.configService.get<string>('PUBLIC_APP_URL') ||
+        this.configService.get<string>('APP_BASE_URL') ||
+        'http://localhost:3000';
+
+      const normalizedUrl = publicBaseUrl.replace(/\/+$/, '');
+      const secret = this.configService.get<string>('WEBHOOK_SECRET') || 'LeraBoxWebhookSecret2026';
+
+      await this.leraBoxService.registerWebhook(token, {
+        event: 'PAYMENT_PIX' as any,
+        url: `${normalizedUrl}/api/webhooks/receiver`,
+        secret,
+      });
+    } catch (registerError: any) {
+      const gatewayMessage =
+        typeof registerError?.response?.data === 'string'
+          ? registerError.response.data
+          : registerError?.response?.data?.message ||
+            registerError?.response?.data ||
+            registerError?.message ||
+            'Erro ao registrar webhook';
+
+      this.logger.warn(
+        `Webhook de pagamento PIX não foi registrado: ${JSON.stringify(gatewayMessage)}`,
+      );
+    }
 
     if (pixResponse?.id) {
       checkoutLink.gatewayPaymentId = pixResponse.id;

@@ -2,10 +2,11 @@ import { LogOut } from 'lucide-react'
 import { useState } from 'react'
 import { WalletPanel } from '../components/dashboard/WalletPanel'
 import { WithdrawalPanel } from '../components/dashboard/WithdrawalPanel'
+import { WebhookPanel } from '../components/dashboard/WebhookPanel'
 import { useAuth } from '../context/AuthContext'
 import { CheckoutPage } from './checkout/CheckoutPage'
 
-type DashboardView = 'wallet' | 'withdrawal' | 'checkout'
+type DashboardView = 'wallet' | 'withdrawal' | 'checkout' | 'webhooks'
 
 export function DashboardPage({ onBack }: { onBack: () => void }) {
   const { user, logout } = useAuth()
@@ -40,6 +41,7 @@ export function DashboardPage({ onBack }: { onBack: () => void }) {
             { key: 'wallet', label: 'Carteira e extrato' },
             { key: 'withdrawal', label: 'Solicitar saque' },
             { key: 'checkout', label: 'Checkout / Pix / Cartão' },
+            { key: 'webhooks', label: 'Webhooks' },
           ].map((item) => (
             <button
               key={item.key}
@@ -59,6 +61,8 @@ export function DashboardPage({ onBack }: { onBack: () => void }) {
           <WalletPanel />
         ) : activeView === 'withdrawal' ? (
           <WithdrawalPanel />
+        ) : activeView === 'webhooks' ? (
+          <WebhookPanel />
         ) : (
           <div className="rounded-[28px] overflow-hidden relative">
             <CheckoutPage />

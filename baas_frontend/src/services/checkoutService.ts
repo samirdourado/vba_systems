@@ -6,8 +6,6 @@ export const createCheckoutLink = async (data: {
   description?: string
   externalReference?: string
 }) => {
-  // O painel do lojista ainda precisa desse comportamento adaptado.
-  // Vou manter para não quebrar o painel.
   const response = await api.post('/checkout/pix', data)
   return response.data
 }

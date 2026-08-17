@@ -183,6 +183,14 @@ export class LeraBoxService {
       );
       return response.data;
     } catch (error: any) {
+      const gatewayMessage =
+        typeof error?.response?.data === 'string'
+          ? error.response.data
+          : error?.response?.data?.message || error?.response?.data || error?.message || 'Erro ao registrar webhook';
+
+      this.logger.error(
+        `Falha ao registrar webhook no gateway: ${JSON.stringify(gatewayMessage)}`,
+      );
       this.handleAxiosError(error);
     }
   }

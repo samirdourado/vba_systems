@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Delete, Body, Param, HttpCode, HttpStatus, UseGuards, Request } from '@nestjs/common';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WebhookService } from './webhook.service';
 import { LeraBoxService } from '../lera-box/lera-box.service';
@@ -11,6 +12,7 @@ export class WebhookController {
   constructor(
     private readonly webhookService: WebhookService,
     private readonly leraBoxService: LeraBoxService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post('receiver')
@@ -26,7 +28,18 @@ export class WebhookController {
   @ApiOperation({ summary: 'Cadastrar / Atualizar webhook no gateway' })
   async registerWebhook(@Request() req, @Body() dto: CreateLeraBoxWebhookDto) {
     const token = req.user?.gatewayAccount?.token || req.user?.gatewayToken;
-    return this.leraBoxService.registerWebhook(token, dto);
+    const publicBaseUrl =
+      this.configService.get<string>('PUBLIC_APP_URL') ||
+      this.configService.get<string>('APP_BASE_URL') ||
+      'http://localhost:3000';
+
+    const normalizedUrl = publicBaseUrl.replace(/\/+$/, '');
+    const resolvedDto: CreateLeraBoxWebhookDto = {
+      ...dto,
+      url: dto.url || `${normalizedUrl}/api/webhooks/receiver`,
+    };
+
+    return this.leraBoxService.registerWebhook(token, resolvedDto);
   }
 
   @UseGuards(JwtAuthGuard)

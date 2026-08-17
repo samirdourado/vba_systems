@@ -163,7 +163,7 @@ export function CheckoutPage() {
               <div className="flex flex-1 flex-col items-center justify-center">
                 <CheckoutResultCard
                   id={checkoutInfo.id}
-                  amount={checkoutInfo.amount}
+                  amount={Math.floor(checkoutInfo.amount / 10000)}
                   status={checkoutInfo.status}
                   paymentMethod={checkoutInfo.paymentMethod}
                   brand={checkoutInfo.brand}

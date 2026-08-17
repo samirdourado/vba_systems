@@ -19,16 +19,16 @@ export class CreateLeraBoxWebhookDto {
   })
   event: LeraBoxWebhookEventType;
 
-  @ApiProperty({
-    description: 'URL do seu servidor que receberá os payloads de notificação',
+  @ApiPropertyOptional({
+    description: 'URL do seu servidor que receberá os payloads de notificação. Se não for informada, usa PUBLIC_APP_URL + /api/webhooks/receiver',
     example: 'https://seu-sistema.com/api/webhooks/receiver',
   })
+  @IsOptional()
   @IsUrl(
     { require_tld: false },
     { message: 'A URL informada deve ser um endereço HTTP/HTTPS válido.' },
   )
-  @IsNotEmpty({ message: 'A URL do webhook é obrigatória.' })
-  url: string;
+  url?: string;
 
   @ApiPropertyOptional({
     description: 'Chave secreta opcional para validação de assinatura HMAC no receptor',
