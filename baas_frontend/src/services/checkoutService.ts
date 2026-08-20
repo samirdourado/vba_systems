@@ -16,15 +16,15 @@ export const getCheckoutInfo = async (id: string) => {
   return response.data
 }
 
-export const payPix = async (data: {
-  amount: number
-  payerDocument: string
-  description?: string
-  externalReference?: string
-}) => {
-  const response = await api.post('/checkout/pix', data)
-  return response.data
-}
+// export const payPix = async (data: {
+//   amount: number
+//   payerDocument: string
+//   description?: string
+//   externalReference?: string
+// }) => {
+//   const response = await api.post('/checkout/pix', data)
+//   return response.data
+// }
 
 export const payCard = async (data: {
   amount: number
