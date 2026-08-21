@@ -1,13 +1,8 @@
 import { ChevronDown, Eye, EyeOff, Wallet } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getTransactions, getWallet } from '../../services/walletService'
-import {
-  formatCentsToBRL,
-  formatDateBR,
-  getStatusBadgeClasses,
-  normalizeTransactionStatus,
-  normalizeTransactionType,
-} from '../../utils/formatters'
+import { formatCentsToBRL, getStatusBadgeClasses, normalizeTransactionStatus, normalizeTransactionType } from '../../utils/formatters'
+import { parseDate } from '../../utils/dateFormatter'
 
 type WalletResponse = {
   balance?: number
@@ -195,7 +190,7 @@ export function WalletPanel() {
                   <p className="mt-1 flex flex-wrap items-center gap-1 text-xs text-[#a1a1aa]">
                     <span className="truncate">{normalizeTransactionType(transaction.paymentMethod)}</span>
                     <span>•</span>
-                    <span className="shrink-0">{formatDateBR(transaction.createdAt)}</span>
+                    <span className="shrink-0">{parseDate(transaction.createdAt)}</span>
                   </p>
                 </div>
 

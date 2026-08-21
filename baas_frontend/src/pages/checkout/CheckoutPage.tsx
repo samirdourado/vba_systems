@@ -111,7 +111,8 @@ export function CheckoutPage() {
         </header>
 
         {/* Corpo: Duas Colunas */}
-        <div className="w-full items-start gap-8 lg:grid lg:grid-cols-[1fr_400px]">
+        {/* <div className="w-full items-start gap-8 lg:grid lg:grid-cols-[1fr_400px]"> */}
+        <div className="min-h-75 w-full flex flex-col items-center justify-center">
           {/* Coluna 1: Como você prefere pagar? */}
           <div className="flex w-full flex-col">
             {!isFinalized ? (
@@ -143,12 +144,7 @@ export function CheckoutPage() {
 
                 <div className="min-h-75">
                   {paymentMethod === 'PIX' ? (
-                    <PixPayment
-                      amount={checkoutInfo.amount}
-                      description={`Pagamento pedido ${checkoutInfo.externalReference}`}
-                      externalReference={checkoutInfo.externalReference}
-                      onSuccess={handlePaymentSuccess}
-                    />
+                    <PixPayment />
                   ) : (
                     <CardPayment
                       amount={checkoutInfo.amount}
@@ -175,7 +171,7 @@ export function CheckoutPage() {
           </div>
 
           {/* Coluna 2: Resumo do Pedido */}
-          <aside className="mt-8 lg:mt-0 w-full">
+          {/* <aside className="mt-8 lg:mt-0 w-full">
             <div className={`sticky top-8 rounded-[28px] border border-white/10 bg-white/5 p-6 sm:p-8 ${isDashboardView ? '' : 'shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-md'}`}>
               <h3 className="mb-6 text-xl font-bold text-white">Resumo do pedido</h3>
 
@@ -207,7 +203,7 @@ export function CheckoutPage() {
                 <p>Pagamento 100% seguro processado por <br /> <strong className="text-[#9ca3af]">VBA Systems & Lera Box</strong></p>
               </div>
             </div>
-          </aside>
+          </aside> */}
         </div>
       </div>
 

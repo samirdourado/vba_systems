@@ -50,10 +50,10 @@ export class CheckoutService {
     });
 
     try {
-      const publicBaseUrl =
-        this.configService.get<string>('PUBLIC_APP_URL') ||
-        this.configService.get<string>('APP_BASE_URL') ||
-        'http://localhost:3000';
+      const publicBaseUrl = 
+        this.configService.get<string>('PUBLIC_APP_URL') 
+        || this.configService.get<string>('APP_BASE_URL')
+      ;
 
       const normalizedUrl = publicBaseUrl.replace(/\/+$/, '');
       const secret = this.configService.get<string>('WEBHOOK_SECRET') || 'LeraBoxWebhookSecret2026';
@@ -82,17 +82,7 @@ export class CheckoutService {
       await this.checkoutRepository.save(checkoutLink);
     }
 
-    return {
-      checkoutId: checkoutLink.id,
-      externalReference: checkoutLink.externalReference,
-      amount: checkoutLink.amount,
-      amountInReais,
-      status: checkoutLink.status,
-      qrCodeBase64: pixResponse?.qrCodeBase64,
-      copyPaste: pixResponse?.copyPaste || pixResponse?.emv,
-      emv: pixResponse?.copyPaste || pixResponse?.emv,
-      txid: pixResponse?.txid || pixResponse?.id,
-    };
+    return pixResponse;
   }
 
   /**
