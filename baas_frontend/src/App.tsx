@@ -1,14 +1,21 @@
-import { useState } from 'react'
-import { useAuth } from './context/AuthContext'
-import { LoginPage } from './pages/Login'
-import { RegisterPage } from './pages/Register'
-import { DashboardPage } from './pages/Dashboard'
-import { RegisterSuccessPage } from './pages/RegisterSuccess'
-import { ForgotPasswordPage } from './pages/ForgotPassword'
+import { useState } from "react";
+import { useAuth } from "./context/AuthContext";
+import { LoginPage } from "./pages/Login";
+import { RegisterPage } from "./pages/Register";
+import { DashboardPage } from "./pages/Dashboard";
+import { RegisterSuccessPage } from "./pages/RegisterSuccess";
+import { ForgotPasswordPage } from "./pages/ForgotPassword";
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth()
-  const [view, setView] = useState<'home' | 'login' | 'register' | 'register-success' | 'forgot-password'>('home')
+  type View =
+    | "home"
+    | "login"
+    | "register"
+    | "register-success"
+    | "forgot-password";
+
+  const { isAuthenticated, isLoading } = useAuth();
+  const [view, setView] = useState<View>("home");
 
   if (isLoading) {
     return (
@@ -18,27 +25,32 @@ function App() {
           Carregando...
         </div>
       </main>
-    )
+    );
   }
 
   if (isAuthenticated) {
-    return <DashboardPage onBack={() => setView('home')} />
+    return <DashboardPage onBack={() => setView("home")} />;
   }
 
-  if (view === 'login') {
-    return <LoginPage onSwitchMode={() => setView('register')} onForgotPassword={() => setView('forgot-password')} />
-  }
-
-  if (view === 'register') {
-    return <RegisterPage onSwitchMode={() => setView('login')} onSuccess={() => setView('register-success')} />
-  }
-
-  if (view === 'register-success') {
-    return <RegisterSuccessPage onGoToLogin={() => setView('login')} />
-  }
-
-  if (view === 'forgot-password') {
-    return <ForgotPasswordPage onBackToLogin={() => setView('login')} />
+  switch (view) {
+    case "login":
+      return (
+        <LoginPage
+          onSwitchMode={() => setView("register")}
+          onForgotPassword={() => setView("forgot-password")}
+        />
+      );
+    case "register":
+      return (
+        <RegisterPage
+          onSwitchMode={() => setView("login")}
+          onSuccess={() => setView("register-success")}
+        />
+      );
+    case "register-success":
+      return <RegisterSuccessPage onGoToLogin={() => setView("login")} />;
+    case "forgot-password":
+      return <ForgotPasswordPage onBackToLogin={() => setView("login")} />;
   }
 
   return (
@@ -46,17 +58,12 @@ function App() {
       <section className="w-[min(1180px,calc(100%-32px))] px-5 pb-10 pt-7">
         <header className="mb-12 flex items-center justify-between gap-5 md:mb-14">
           <div className="flex items-center" aria-label="Logo do BAAS">
-            <img src="/logo.webp" alt="Logo BAAS" className="h-[50px] w-[250px] object-contain" />
+            <img
+              src="/logo.webp"
+              alt="Logo BAAS"
+              className="h-12.5 w-62.5 object-contain"
+            />
           </div>
-
-          <nav
-            className="flex flex-wrap items-center justify-center gap-4 text-sm font-medium text-[#6b6375] sm:gap-7 md:text-base"
-            aria-label="Navegação principal"
-          >
-            <a href="#sobre" className="transition-colors hover:text-white">Sobre</a>
-            <a href="#recursos" className="transition-colors hover:text-white">Recursos</a>
-            <a href="#contato" className="transition-colors hover:text-white">Contato</a>
-          </nav>
         </header>
 
         <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
@@ -68,28 +75,32 @@ function App() {
               Controle seu dinheiro com segurança e praticidade.
             </h1>
             <p className="mt-4 max-w-130 text-base leading-7 text-[#9ca3af] md:text-lg">
-              Acesse sua conta, acompanhe movimentações e aproveite uma experiência
-              simples para pagar, receber e gerenciar seus recursos em um só lugar.
+              Acesse sua conta, acompanhe movimentações e aproveite uma
+              experiência simples para pagar, receber e gerenciar seus recursos
+              em um só lugar.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 type="button"
-                onClick={() => setView('login')}
+                onClick={() => setView("login")}
                 className="rounded-xl bg-linear-to-r from-[#aa3bff] to-[#8b5cf6] px-6 py-3 text-base font-bold text-white shadow-[0_14px_30px_rgba(170,59,255,0.25)] transition-transform hover:-translate-y-0.5"
               >
                 Fazer login
               </button>
               <button
                 type="button"
-                onClick={() => setView('register')}
+                onClick={() => setView("register")}
                 className="rounded-xl border border-[#e5e4e7]/60 bg-transparent px-6 py-3 text-base font-bold text-white transition-transform hover:-translate-y-0.5"
               >
                 Cadastrar
               </button>
             </div>
 
-            <ul className="mt-8 flex list-none flex-wrap gap-5 p-0 text-sm text-[#9ca3af] md:text-base" aria-label="Benefícios">
+            <ul
+              className="mt-8 flex list-none flex-wrap gap-5 p-0 text-sm text-[#9ca3af] md:text-base"
+              aria-label="Benefícios"
+            >
               <li className="relative pl-5 before:absolute before:left-0 before:top-2 before:h-2 before:w-2 before:rounded-full before:bg-[#aa3bff] before:shadow-[0_0_0_4px_rgba(170,59,255,0.1)]">
                 Transferências rápidas
               </li>
@@ -102,7 +113,10 @@ function App() {
             </ul>
           </div>
 
-          <div className="relative flex min-h-105 items-center justify-center lg:min-h-125" aria-label="Preview do painel da plataforma">
+          <div
+            className="relative flex min-h-105 items-center justify-center lg:min-h-125"
+            aria-label="Preview do painel da plataforma"
+          >
             <div className="relative w-full max-w-125 rounded-[28px] border border-white/10 bg-white/10 p-5 shadow-[0_10px_30px_rgba(0,0,0,0.35)] backdrop-blur-sm md:p-6">
               <div className="mb-6 flex gap-2">
                 <span className="h-3 w-3 rounded-full bg-[#a855f7]"></span>
@@ -111,7 +125,9 @@ function App() {
               </div>
 
               <div className="rounded-[20px] border border-white/10 bg-white/5 p-4 md:p-5">
-                <span className="mb-3 block text-xs text-[#cbd5e1]">Saldo disponível</span>
+                <span className="mb-3 block text-xs text-[#cbd5e1]">
+                  Saldo disponível
+                </span>
                 <strong className="block text-3xl font-bold tracking-[-0.04em] text-white md:text-[2.4rem]">
                   R$ 24.680,00
                 </strong>
@@ -119,30 +135,46 @@ function App() {
 
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <small className="mb-2 block text-xs text-[#cbd5e1]">Entradas</small>
-                  <strong className="text-lg font-bold text-white">R$ 8.940</strong>
+                  <small className="mb-2 block text-xs text-[#cbd5e1]">
+                    Entradas
+                  </small>
+                  <strong className="text-lg font-bold text-white">
+                    R$ 8.940
+                  </strong>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <small className="mb-2 block text-xs text-[#cbd5e1]">Saídas</small>
-                  <strong className="text-lg font-bold text-white">R$ 3.450</strong>
+                  <small className="mb-2 block text-xs text-[#cbd5e1]">
+                    Saídas
+                  </small>
+                  <strong className="text-lg font-bold text-white">
+                    R$ 3.450
+                  </strong>
                 </div>
               </div>
             </div>
 
             <div className="absolute -right-3 top-15.5 min-w-40 rounded-[18px] border border-white/10 bg-white px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.2)] md:-right-2">
-              <span className="mb-1 block text-[0.72rem] text-[#6b6375]">Pagamentos</span>
-              <strong className="text-lg font-bold text-[#111111]">+18,4%</strong>
+              <span className="mb-1 block text-[0.72rem] text-[#6b6375]">
+                Pagamentos
+              </span>
+              <strong className="text-lg font-bold text-[#111111]">
+                +18,4%
+              </strong>
             </div>
 
             <div className="absolute bottom-13 right-1.5 min-w-40 rounded-[18px] border border-white/10 bg-white px-4 py-3 shadow-[0_10px_30px_rgba(0,0,0,0.2)] md:right-4.5">
-              <span className="mb-1 block text-[0.72rem] text-[#6b6375]">Investimentos</span>
-              <strong className="text-lg font-bold text-[#111111]">R$ 12.900</strong>
+              <span className="mb-1 block text-[0.72rem] text-[#6b6375]">
+                Investimentos
+              </span>
+              <strong className="text-lg font-bold text-[#111111]">
+                R$ 12.900
+              </strong>
             </div>
           </div>
         </div>
       </section>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
