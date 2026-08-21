@@ -1,7 +1,7 @@
 import { LoaderCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { getWithdrawalStatus, requestWithdrawal } from '../../services/walletService'
-import { parseBRLToCents } from '../../utils/formatters'
+import { parseAmountToCents } from '../../utils/currencyFormatter'
 
 type WithdrawalMetadata = {
   pixKey?: string
@@ -112,7 +112,7 @@ export function WithdrawalPanel() {
     setLoading(true)
 
     try {
-      const amountInCents = parseBRLToCents(amount)
+      const amountInCents = parseAmountToCents(amount)
 
       if (!amountInCents || amountInCents <= 0) {
         throw new Error('Informe um valor válido para o saque.')

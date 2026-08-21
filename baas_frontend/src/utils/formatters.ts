@@ -5,28 +5,6 @@ export const formatCentsToBRL = (cents: number): string => {
   }).format((Number(cents || 0)) / 100);
 };
 
-export const parseBRLToCents = (value: string): number => {
-  return Number(value.replace(/\D/g, ''));
-};
-
-export const formatDateBR = (value?: string | null): string => {
-  if (!value) {
-    return 'Data indisponível';
-  }
-
-  const date = new Date(value)
-
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date)
-};
-
 export const normalizeTransactionStatus = (status?: string): string => {
   const map: Record<string, string> = {
     APPROVED: 'Aprovado',

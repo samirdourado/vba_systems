@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, XCircle } from 'lucide-react'
-import { formatCentsToBRL, formatDateBR } from '../../utils/formatters'
+import { formatCentsToBRL } from '../../utils/formatters'
+import { parseDate } from '../../utils/dateFormatter'
 
 interface CheckoutResultProps {
   id: string
@@ -106,7 +107,7 @@ export function CheckoutResultCard({
               <div className="flex justify-between text-sm">
                 <span className="text-[#9ca3af]">Data</span>
                 <span className="font-medium text-[#e2e8f0]">
-                  {formatDateBR(createdAt)}
+                  {parseDate(createdAt)}
                 </span>
               </div>
             )}

@@ -111,7 +111,8 @@ export function CheckoutPage() {
         </header>
 
         {/* Corpo: Duas Colunas */}
-        <div className="w-full items-start gap-8 lg:grid lg:grid-cols-[1fr_400px]">
+        {/* <div className="w-full items-start gap-8 lg:grid lg:grid-cols-[1fr_400px]"> */}
+        <div className="min-h-75 w-full flex flex-col items-center justify-center">
           {/* Coluna 1: Como você prefere pagar? */}
           <div className="flex w-full flex-col">
             {!isFinalized ? (
